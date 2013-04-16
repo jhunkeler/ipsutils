@@ -1,0 +1,8 @@
+.pydevproject
+.project
+.DS_Store
+*.pyc
+src/*.pyc
+data
+converted
+images
