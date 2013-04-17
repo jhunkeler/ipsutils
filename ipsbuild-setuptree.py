@@ -9,7 +9,7 @@ try:
 except:
     Exception("Unsupported platform: {0:s}".format(sys.platform))
     
-head = os.path.join(home, 'ipcbuild')
+head = os.path.join(home, 'ipsbuild')
 tree = ['BUILDROOT',
         'BUILD',
         'SPECS',
