@@ -1,9 +1,9 @@
 name:           ipsutils
-version:        0.1.0
+version:        0.2.0
 release:        1
 maintainer:     test person
-upstream_url:   http://localhost/ipsutils-0.1.0.tar.gz
-source_url:     http://localhost/ipsutils-0.1.0.tar.gz
+upstream_url:   http://localhost/ipsutils-0.2.0.tar.gz
+source_url:     http://localhost/ipsutils-0.2.0.tar.gz
 description:    "a test package"
 summary:        "test package"
 group:          developer
@@ -19,11 +19,10 @@ license:       GPL
 
 %build
 python setup.py build
-#configure --prefix=/usr
-#make
+
 %end
 
 %install
-#mkdir -p $BUILDPROTO/usr/bin
 python setup.py install --root=$BUILDPROTO --prefix=/usr
+
 %end
