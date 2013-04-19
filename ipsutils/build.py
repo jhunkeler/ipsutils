@@ -158,16 +158,18 @@ class Build(env.Environment):
                            'generate',
                            self.env_pkg['BUILDPROTO']]
         command_pkgfmt = [self.tool['pkgfmt']]
+        fp = file(self.env_meta['FILES'], 'w+')
         proc_pkg = subprocess.Popen(command_pkg,
                                         stdout=subprocess.PIPE)
         proc_pkgfmt = subprocess.Popen(command_pkgfmt,
                                        stdin=proc_pkg.stdout,
-                                       stdout=self.env_meta['FILES'])
+                                       stdout=fp)
         output, err = proc_pkgfmt.communicate()
+        fp.close()
         if output:
             for line in output:
                 print(line.rstrip('\n'))
-        if err != 0:
+        if err is not None:
             return False
         return True
 
@@ -177,16 +179,18 @@ class Build(env.Environment):
                        self.env_meta['FILES'],
                        self.env_meta['METADATA']]
         command_pkgfmt = [self.tool['pkgfmt']]
+        fp = file(self.env_meta['TRANS'], 'w+')
         proc_pkg = subprocess.Popen(command_pkg,
                                         stdout=subprocess.PIPE)
         proc_pkgfmt = subprocess.Popen(command_pkgfmt,
                                        stdin=proc_pkg.stdout,
-                                       stdout=self.env_meta['TRANS'])
+                                       stdout=fp)
         output, err = proc_pkgfmt.communicate()
+        fp.close()
         if output:
             for line in output:
                 print(line.rstrip('\n'))
-        if err != 0:
+        if err is not None:
             return False
         return True
 
@@ -197,27 +201,29 @@ class Build(env.Environment):
                        self.env_pkg['BUILDPROTO'],
                        self.env_meta['TRANS']]
         command_pkgfmt = [self.tool['pkgfmt']]
+        fp = file(self.env_meta['DEPENDS'], 'w+')
         proc_pkg = subprocess.Popen(command_pkg,
                                         stdout=subprocess.PIPE)
         proc_pkgfmt = subprocess.Popen(command_pkgfmt,
                                        stdin=proc_pkg.stdout,
-                                       stdout=self.env_meta['DEPENDS'])
+                                       stdout=fp)
         output, err = proc_pkgfmt.communicate()
+        fp.close()
         if output:
             for line in output:
                 print(line.rstrip('\n'))
-        if err != 0:
+        if err is not None:
             return False
         return True
 
-    def manifest_depends_resolve(self):
+    def manifest_depends_resolve(self, *p):
         command_pkg = [self.tool['pkgdepend'],
                        'resolve',
                        '-m',
                        self.env_meta['DEPENDS']]
         proc_pkg = subprocess.Popen(command_pkg)
         err = proc_pkg.wait()
-        if err != 0:
+        if err is not None:
             return False
         return True
 
