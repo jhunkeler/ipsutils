@@ -18,7 +18,7 @@ import sys
 
 home = None
 try:
-    if sys.platform == 'linux2' or sys.platform == 'darwin':
+    if sys.platform == 'linux2' or sys.platform == 'sunos5':
         home = os.path.normpath(os.environ['HOME'])
     elif sys.platform == 'win32':
         home = os.path.normpath(os.environ['USERPROFILE'])
