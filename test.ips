@@ -1,11 +1,18 @@
-name:          developer/testpkg
-version:       0.1
-release:       1
-maintainer:    test person
-upstream_url:  http://localhost/testpkg.tar.gz
-description:   a test package
+name:           testpkg
+version:        0.1
+release:        1
+maintainer:     test person
+upstream_url:   http://localhost/testpkg-0.1.tar.gz
+source_url:     http://localhost/testpkg-0.1.tar.gz
+description:    "a test package"
+summary:        "test package"
+group:          developer
+classification: "edu.stsci:Development/Solaris 11"
 arch:          i386
 license:       GPL
+
+%setup
+%end
 
 %prep
 %end
