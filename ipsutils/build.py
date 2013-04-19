@@ -90,13 +90,17 @@ class Build(env.Environment):
                '.bz2': self.tool['bunzip'],
                '.zip': self.tool['unzip']
         }
-        cmd = []
+
+        err = None
         for k, v in ext.items():
             if k in path:
                 cmd = v.split()
                 print(string.join(cmd))
-                subprocess.check_output(cmd)
+                proc = subprocess.Popen(cmd)
+                err = proc.wait()
                 break
+        if err is not None:
+            return False
         return True
 
     def create_buildroot(self, *p):
