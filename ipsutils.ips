@@ -1,0 +1,29 @@
+name:           ipsutils
+version:        0.1.0
+release:        1
+maintainer:     test person
+upstream_url:   http://localhost/ipsutils-0.1.0.tar.gz
+source_url:     http://localhost/ipsutils-0.1.0.tar.gz
+description:    "a test package"
+summary:        "test package"
+group:          developer
+classification: "edu.stsci:Development/Solaris 11"
+arch:          i386
+license:       GPL
+
+%setup
+%end
+
+%prep
+%end
+
+%build
+python setup.py build
+#configure --prefix=/usr
+#make
+%end
+
+%install
+#mkdir -p $BUILDPROTO/usr/bin
+python setup.py install --root=$BUILDPROTO --prefix=/usr
+%end
