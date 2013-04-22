@@ -17,11 +17,13 @@
 from distutils.core import setup
 
 setup(name='ipsutils',
-      version='0.1',
+      version='0.1.0',
       description='Solaris 11 IPS packaging library',
+      license='GPL',
       author='Joseph Hunkeler',
       author_email='jhunk@stsci.edu',
       url='http://www.stsci.edu/~jhunk/ips',
       packages=['ipsutils'],
-	  scripts=['ipsbuild.py', 'ipsbuild-setuptree.py'],
+      scripts={'ipsbuild.py', 'ipsbuild-setuptree.py'},
+      platforms=['sunos5', 'linux2']
       )
