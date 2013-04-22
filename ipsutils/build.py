@@ -98,10 +98,11 @@ class Build(env.Environment):
         
         p: tuple of function arguments
         """
-        path = self.env_pkg['BUILDROOT']
+        # BUILDPROTO is a subdirectory of BUILDROOT/pkgname
+        path = self.env_pkg['BUILDPROTO']
         if os.path.exists(path):
             shutil.rmtree(path)
-        os.mkdir(path)
+        os.makedirs(path, 0755)
         return True
 
     def create_metadata(self, *p):
@@ -139,7 +140,7 @@ class Build(env.Environment):
         template.close()
 
         # Generate intial IPS manifest file in buildroot
-        manifest = file(os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.1'), 'w+')
+        manifest = file(os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.mog'), 'w+')
         for line in output:
             manifest.writelines(line)
         print(manifest.name)
