@@ -45,6 +45,7 @@ class Environment(config.Config):
         # Dictionary of package-leve directories
         self.env_pkg = {
                 'BUILDROOT': os.path.join(self.env['BUILDROOT'], self.complete_name),
+                'BUILDPROTO': os.path.join(self.env['BUILDROOT'], self.complete_name, 'proto_install'),
                 'BUILD': os.path.join(self.env['BUILD'], self.complete_name),
                 'SOURCES': os.path.join(self.env['SOURCES'], os.path.basename(self.key_dict['source_url'])),
                 'PKGS': os.path.join(self.env['PKGS'], self.complete_name),
