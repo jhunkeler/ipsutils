@@ -1,3 +1,17 @@
+# This file is part of ipsutils.
+
+# ipsutils is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# ipsutils is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with ipsutils.  If not, see <http://www.gnu.org/licenses/>.
 import shlex
 import string
 
@@ -31,7 +45,7 @@ class Config(object):
             parts = shlex.split(line)
             t = string.Template(parts)
             expandable.append(t)
-        
+
         for key in key_dict:
             for line in file(ipsfile).readlines():
                 parts = shlex.split(line)
@@ -40,7 +54,7 @@ class Config(object):
 
         found_data = False
         code_section = ['%build', '%prep', '%install']
-    
+
         for section in code_section:
             for line in file(ipsfile).readlines():
                 if line.startswith('#'):
@@ -56,4 +70,3 @@ class Config(object):
 
         self.key_dict = key_dict
         self.script_dict = script_dict
-                        

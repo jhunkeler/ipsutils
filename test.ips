@@ -18,13 +18,14 @@ license:       GPL
 %end
 
 %build
-python -m compileall -f .
+pwd
+python -m compileall -f *
 #configure --prefix=/usr
 #make
 %end
 
 %install
-mkdir $BUILDROOT/usr/bin
+mkdir -p $BUILDROOT/usr/bin
 cp testpkg.pyc $BUILDROOT/usr/bin
 #make install
 %end

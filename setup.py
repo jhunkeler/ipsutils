@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # This file is part of ipsutils.
 
 # ipsutils is free software: you can redistribute it and/or modify
@@ -13,32 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with ipsutils.  If not, see <http://www.gnu.org/licenses/>.
 
-class TaskController(object):
-    def __init__(self):
-        self.stack = []
+from distutils.core import setup
 
-    def task(self, t):
-        """
-        t: Task object
-        """
-        self.stack.append(t)
-
-    def do_tasks(self):
-        """ FILO execution of tasks
-        """
-        for stack_entry in self.stack:
-            stack_entry.run()
-
-class NamedTask(object):
-    def __init__(self, name, func, *args):
-        self.name = name
-        self.task = func
-        self.task_args = args
-
-    def run(self):
-        print("Running task: {0:s}".format(self.name))
-        status = self.task(self.task_args)
-        return status
-
-class InternalTask(NamedTask):
-    pass
+setup(name='IPS',
+      version='0.1',
+      description='Solaris 11 IPS packaging library',
+      author='Joseph Hunkeler',
+      author_email='jhunk@stsci.edu',
+      url='http://www.stsci.edu/~jhunk/ips',
+      packages=['ips'],
+      )

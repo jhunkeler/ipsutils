@@ -1,9 +1,25 @@
+# This file is part of ipsutils.
+
+# ipsutils is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# ipsutils is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with ipsutils.  If not, see <http://www.gnu.org/licenses/>.
+
 from . import env, task
 from pprint import pprint
 import os
 import shutil
 import subprocess
 import string
+from . import tpl
 
 
 class Build(env.Environment):
@@ -12,7 +28,7 @@ class Build(env.Environment):
         # Inherited members are used to populate package information
         # as well as build tasks
         super(Build, self).__init__(ipsfile)
-        
+
         os.chdir(self.env['IPSBUILD'])
         # Create list of build tasks
         ordered_tasks = ['prep', 'build', 'install']
@@ -30,28 +46,35 @@ class Build(env.Environment):
     def exec_scripted_process(self, *p):
         """Execute script in .ips
         This function needs to be rewritten BAD
+        
+        p: tuple of function arguments
         """
+        # All execution occurs from within the build directory.
+        # This includes all installation-like tasks
         os.chdir(self.env_pkg['BUILD'])
         for t in map(list, p):
             for i in t:
                 if not i:
                     continue
                 for e in i:
+                    # Variable expansion occurs here.  Unfortunately, env_pkg is NOT available
+                    # from within the configuration class
                     t = string.Template(string.join(e))
                     e = t.safe_substitute(self.env_pkg)
                     print("+ {0:s}".format(e))
-                    output = subprocess.check_output(e)
+                    # Using "shell" is dangerous, but we're in the business of danger... right?
+                    output = subprocess.check_output(e, shell=True)
                     if output:
-                        print("+ {0:s}".format(output))
+                        print("+ {0:s}".format(output).rstrip('\n'))
         os.chdir(self.env['IPSBUILD'])
         return True
-    
+
     def source_unpack(self, *p):
         path = os.path.relpath(self.env_pkg['SOURCES'], self.env['IPSBUILD'])
         if not os.path.exists(path):
             print("{0:s}: does not exist".format(path))
             return False
-        
+
         ext = {
                '.tar': '{0:s} xf {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
                '.tar.gz': '{0:s} xfz {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
@@ -71,6 +94,10 @@ class Build(env.Environment):
         return True
 
     def create_buildroot(self, *p):
+        """Destroy/Create BUILDROOT per execution to keep the envrionment stable
+        
+        p: tuple of function arguments
+        """
         path = self.env_pkg['BUILDROOT']
         if os.path.exists(path):
             shutil.rmtree(path)
@@ -88,7 +115,9 @@ class Build(env.Environment):
                      'info.source_url': self.key_dict['source_url'],
                      'info.classification': self.key_dict['classification']
                      }
-        template = file('c:\\users\\jhunk\\documents\\projects\\aptana\\ipsbuild\\metadata.tpl', 'r')
+
+        # Perform manifest template mapping and expansion
+        template = file(tpl.metadata, 'r')
         for line in template.readlines():
             for k, v in meta_map.items():
                 if k in line:
@@ -106,8 +135,10 @@ class Build(env.Environment):
                            ))
                         continue
                     # The rest of the value replacements are rather simple
-                    output.append(line.replace('{}', v))   
-        
+                    output.append(line.replace('{}', v))
+        template.close()
+
+        # Generate intial IPS manifest file in buildroot
         manifest = file(os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.1'), 'w+')
         for line in output:
             manifest.writelines(line)
