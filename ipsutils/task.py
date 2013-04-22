@@ -27,7 +27,10 @@ class TaskController(object):
         """ FILO execution of tasks
         """
         for stack_entry in self.stack:
-            stack_entry.run()
+            status = stack_entry.run()
+            if not status:
+                exit(status)
+
 
 class NamedTask(object):
     def __init__(self, name, func, *args):
