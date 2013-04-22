@@ -16,9 +16,9 @@
 
 
 from pprint import pprint
-import ips
+import ipsutils
 
 testfile = "test.ips"
-build = ips.build.Build(testfile)
+build = ipsutils.build.Build(testfile)
 build.show_summary()
 build.controller.do_tasks()

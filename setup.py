@@ -16,11 +16,12 @@
 
 from distutils.core import setup
 
-setup(name='IPS',
+setup(name='ipsutils',
       version='0.1',
       description='Solaris 11 IPS packaging library',
       author='Joseph Hunkeler',
       author_email='jhunk@stsci.edu',
       url='http://www.stsci.edu/~jhunk/ips',
-      packages=['ips'],
+      packages=['ipsutils'],
+	  scripts=['ipsbuild.py', 'ipsbuild-setuptree.py'],
       )
