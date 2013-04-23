@@ -43,6 +43,12 @@ class Build(env.Environment):
         for user_task in ordered_tasks:
             self.controller.task(task.NamedTask(user_task, self.exec_scripted_process, self.script_dict[user_task]))
 
+        # Assign file manifest tasks
+        self.controller.task(task.NamedTask('Create file list', self.create_manifest))
+        self.controller.task(task.NamedTask('Create file list', self.manifest_mogrify))
+        self.controller.task(task.NamedTask('Create file list', self.manifest_depends))
+        self.controller.task(task.NamedTask('Create file list', self.manifest_depends_resolve))
+
     def exec_scripted_process(self, *p):
         """Execute script in .ips
         This function needs to be rewritten BAD
@@ -117,7 +123,7 @@ class Build(env.Environment):
                      'info.classification': self.key_dict['classification']
                      }
 
-        # Perform manifest template mapping and expansion
+        # Perform metadata template mapping and expansion
         template = file(tpl.metadata, 'r')
         for line in template.readlines():
             for k, v in meta_map.items():
@@ -139,17 +145,81 @@ class Build(env.Environment):
                     output.append(line.replace('{}', v))
         template.close()
 
-        # Generate intial IPS manifest file in buildroot
-        manifest = file(os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.mog'), 'w+')
+        # Generate intial IPS metadata file in buildroot
+        metadata = file(os.path.join(self.env_meta['METADATA']), 'w+')
         for line in output:
-            manifest.writelines(line)
-        print(manifest.name)
-        manifest.close()
+            metadata.writelines(line)
+        print(metadata.name)
+        metadata.close()
         return True
 
-    def create_package_list(self, *p):
-        pass
+    def create_manifest(self, *p):
+        command_pkg = [self.tool['pkgsend'],
+                           'generate',
+                           self.env_pkg['BUILDPROTO']]
+        command_pkgfmt = [self.tool['pkgfmt']]
+        proc_pkg = subprocess.Popen(command_pkg,
+                                        stdout=subprocess.PIPE)
+        proc_pkgfmt = subprocess.Popen(command_pkgfmt,
+                                       stdin=proc_pkg.stdout,
+                                       stdout=self.env_meta['FILES'])
+        output, err = proc_pkgfmt.communicate()
+        if output:
+            for line in output:
+                print(line.rstrip('\n'))
+        if err != 0:
+            return False
+        return True
 
+    def manifest_mogrify(self, *p):
+        command_pkg = [self.tool['pkgmogrify'],
+                       '-DARCH={0:s}'.format(self.key_dict['arch']),
+                       self.env_meta['FILES'],
+                       self.env_meta['METADATA']]
+        command_pkgfmt = [self.tool['pkgfmt']]
+        proc_pkg = subprocess.Popen(command_pkg,
+                                        stdout=subprocess.PIPE)
+        proc_pkgfmt = subprocess.Popen(command_pkgfmt,
+                                       stdin=proc_pkg.stdout,
+                                       stdout=self.env_meta['TRANS'])
+        output, err = proc_pkgfmt.communicate()
+        if output:
+            for line in output:
+                print(line.rstrip('\n'))
+        if err != 0:
+            return False
+        return True
+
+    def manifest_depends(self, *p):
+        command_pkg = [self.tool['pkgdepend'],
+                       'generate',
+                       '-md',
+                       self.env_pkg['BUILDPROTO'],
+                       self.env_meta['TRANS']]
+        command_pkgfmt = [self.tool['pkgfmt']]
+        proc_pkg = subprocess.Popen(command_pkg,
+                                        stdout=subprocess.PIPE)
+        proc_pkgfmt = subprocess.Popen(command_pkgfmt,
+                                       stdin=proc_pkg.stdout,
+                                       stdout=self.env_meta['DEPENDS'])
+        output, err = proc_pkgfmt.communicate()
+        if output:
+            for line in output:
+                print(line.rstrip('\n'))
+        if err != 0:
+            return False
+        return True
+
+    def manifest_depends_resolve(self):
+        command_pkg = [self.tool['pkgdepend'],
+                       'resolve',
+                       '-m',
+                       self.env_meta['DEPENDS']]
+        proc_pkg = subprocess.Popen(command_pkg)
+        err = proc_pkg.wait()
+        if err != 0:
+            return False
+        return True
 
     def show_summary(self):
         print("Summary of {0:s}".format(self.key_dict['name']))
