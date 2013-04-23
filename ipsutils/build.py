@@ -44,10 +44,10 @@ class Build(env.Environment):
             self.controller.task(task.NamedTask(user_task, self.exec_scripted_process, self.script_dict[user_task]))
 
         # Assign file manifest tasks
-        self.controller.task(task.NamedTask('Create file list', self.create_manifest))
-        self.controller.task(task.NamedTask('Create file list', self.manifest_mogrify))
-        self.controller.task(task.NamedTask('Create file list', self.manifest_depends))
-        self.controller.task(task.NamedTask('Create file list', self.manifest_depends_resolve))
+        self.controller.task(task.NamedTask('Create manifest', self.create_manifest))
+        self.controller.task(task.NamedTask('Check transforms (mogrify)', self.manifest_mogrify))
+        self.controller.task(task.NamedTask('Generate automatic dependency list', self.manifest_depends))
+        self.controller.task(task.NamedTask('Resolve dependencies', self.manifest_depends_resolve))
 
     def exec_scripted_process(self, *p):
         """Execute script in .ips
