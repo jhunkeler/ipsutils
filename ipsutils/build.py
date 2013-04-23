@@ -76,7 +76,7 @@ class Build(env.Environment):
         return True
 
     def source_unpack(self, *p):
-        path = os.path.relpath(self.env_pkg['SOURCES'], self.env['IPSBUILD'])
+        path = os.path.abspath(self.env_pkg['SOURCES'])
         if not os.path.exists(path):
             print("{0:s}: does not exist".format(path))
             return False
@@ -100,7 +100,8 @@ class Build(env.Environment):
                 err = proc.wait()
                 break
         if err is not None:
-            return False
+            if err > 0:
+                return False
         return True
 
     def create_buildroot(self, *p):
