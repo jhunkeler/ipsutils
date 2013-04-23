@@ -52,6 +52,12 @@ class Environment(config.Config):
                 'SPKGS': os.path.join(self.env['SPKGS'], self.complete_name)
                 }
 
+        self.env_meta = {
+                'METADATA': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.mog'),
+                'FILES': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.1'),
+                'TRANS': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.2'),
+                'DEPENDS': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.3')
+                }
         # Generic utility mapping for platform specific configuration.
         # Note: This is mainly to test script functionality on different platforms
         #       even though this library is VERY VERY Solaris 11 specific
@@ -59,7 +65,11 @@ class Environment(config.Config):
                     'tar': 'tar',
                     'unzip': 'unzip',
                     'gunzip': 'gunzip',
-                    'bunzip': 'bunzip'
+                    'bunzip': 'bunzip',
+                    'pkgsend': 'pkgsend',
+                    'pkgmogrify': 'pkgmogrify',
+                    'pkgdepend': 'pkgdepend',
+                    'pkgfmt': 'pkgfmt'
                     }
 
         # Oracle tar is ancient.  GNU tar is preferrred.
