@@ -1,3 +1,4 @@
+import shlex
 # This file is part of ipsutils.
 
 # ipsutils is free software: you can redistribute it and/or modify
@@ -16,9 +17,11 @@
 from . import env, task
 from pprint import pprint
 import os
+import sys
 import shutil
 import subprocess
 import string
+import shlex
 from . import tpl
 
 
@@ -58,6 +61,7 @@ class Build(env.Environment):
         # All execution occurs from within the build directory.
         # This includes all installation-like tasks
         os.chdir(self.env_pkg['BUILD'])
+        err = 0
         for t in map(list, p):
             for i in t:
                 if not i:
@@ -67,12 +71,14 @@ class Build(env.Environment):
                     # from within the configuration class
                     t = string.Template(string.join(e))
                     e = t.safe_substitute(self.env_pkg)
-                    print("+ {0:s}".format(e))
+                    e = shlex.split(e)
+                    print("+ {0:s}".format(string.join(e)))
                     # Using "shell" is dangerous, but we're in the business of danger... right?
-                    output = subprocess.check_output(e, shell=True)
-                    if output:
-                        print("+ {0:s}".format(output).rstrip('\n'))
+                    proc = subprocess.Popen(e, shell=True, stdout=sys.stdout)
+                    err = proc.wait()
         os.chdir(self.env['IPSBUILD'])
+        if err > 0:
+            return False
         return True
 
     def source_unpack(self, *p):
@@ -80,15 +86,17 @@ class Build(env.Environment):
         if not os.path.exists(path):
             print("{0:s}: does not exist".format(path))
             return False
+        if os.path.exists(self.env_pkg['BUILD']):
+            shutil.rmtree(self.env_pkg['BUILD'])
 
         ext = {
-               '.tar': '{0:s} xf {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
-               '.tar.gz': '{0:s} xfz {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
-               '.tar.bz2': '{0:s} xfj {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
-               '.tar.xz': '{0:s} xfJ {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
-               '.gz': self.tool['gunzip'],
-               '.bz2': self.tool['bunzip'],
-               '.zip': self.tool['unzip']
+               '.tar': '{0:s} Uxf {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
+               '.tar.gz': '{0:s} Uxfz {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
+               '.tar.bz2': '{0:s} Uxfj {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
+               '.tar.xz': '{0:s} UxfJ {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
+               '.gz': self.tool['gunzip'], # not implemented
+               '.bz2': self.tool['bunzip'], # not implemented
+               '.zip': self.tool['unzip'] # not implemented
         }
 
         err = None
@@ -117,9 +125,19 @@ class Build(env.Environment):
         return True
 
     def create_metadata(self, *p):
+        # A common problem that needs solving.  What if you need to name your
+        # package something else?  "repackage"
+        if self.key_dict['repackage']:
+            repackas = 'repackage'
+        else:
+            repackas = 'name'
+            
         output = []
         meta_map = {
-                     'pkg.fmri': self.key_dict['name'],
+                     'pkg.fmri': self.key_dict['group'] + "/" +
+                           self.key_dict[repackas] + "@" +
+                           self.key_dict['version'] + "," +
+                           self.key_dict['release'],
                      'pkg.description': self.key_dict['description'],
                      'pkg.summary': self.key_dict['summary'],
                      'variant.arch': self.key_dict['arch'],
@@ -133,20 +151,6 @@ class Build(env.Environment):
         for line in template.readlines():
             for k, v in meta_map.items():
                 if k in line:
-                    # pkg.fmri requires special attention to build the proper
-                    # package name IPS wants
-                    if k == 'pkg.fmri':
-                        output.append(line.replace('{}',
-                           self.key_dict['group'] +
-                           "/" +
-                           self.key_dict['name'] +
-                           "@" +
-                           self.key_dict['version'] +
-                           "," +
-                           self.key_dict['release']
-                           ))
-                        continue
-                    # The rest of the value replacements are rather simple
                     output.append(line.replace('{}', v))
         template.close()
 
