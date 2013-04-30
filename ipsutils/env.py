@@ -42,7 +42,7 @@ class Environment(config.Config):
         # complete_name is required to build proper path names.  
         # The use of "self" in this case may be deprecated in the future.
         self.complete_name = self.key_dict['name'] + '-' + self.key_dict['version']
-        # Dictionary of package-leve directories
+        # Dictionary of package-level directories
         self.env_pkg = {
                 'BUILDROOT': os.path.join(self.env['BUILDROOT'], self.complete_name),
                 'BUILDPROTO': os.path.join(self.env['BUILDROOT'], self.complete_name, 'proto_install'),
