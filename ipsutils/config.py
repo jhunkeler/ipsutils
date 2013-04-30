@@ -20,6 +20,7 @@ class Config(object):
         super(Config, self).__init__()
         key_dict = {
                 'name': '',
+                'repackage': '',
                 'version': '',
                 'release': '',
                 'maintainer': '',
@@ -57,6 +58,8 @@ class Config(object):
 
         for section in code_section:
             for line in file(ipsfile).readlines():
+                if not line:
+                    continue
                 if line.startswith('#'):
                     continue
                 parts = shlex.split(line)
