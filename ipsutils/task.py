@@ -29,7 +29,7 @@ class TaskController(object):
         for stack_entry in self.stack:
             status = stack_entry.run()
             if not status:
-                print("Exiting...")
+                print("Exiting... {0:d}".format(status))
                 exit(status)
 
 
