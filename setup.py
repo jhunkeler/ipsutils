@@ -23,7 +23,7 @@ setup(name='ipsutils',
       author='Joseph Hunkeler',
       author_email='jhunk@stsci.edu',
       url='http://www.stsci.edu/~jhunk/ips',
-      packages=['ipsutils'],
+      packages=['ipsutils', 'ipsutils/tpl'],
       scripts={'ipsbuild.py', 'ipsbuild-setuptree.py'},
       platforms=['sunos5', 'linux2']
       )
