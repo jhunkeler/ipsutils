@@ -28,9 +28,14 @@ class TaskController(object):
         """
         for stack_entry in self.stack:
             status = stack_entry.run()
-            if not status:
-                print("Exiting... {0:d}".format(status))
-                exit(status)
+            if type(status) == type(bool):
+                if not status:
+                    print("Internal error: {0:s}".format(status))
+                    exit(status)
+            else:
+                if status > 0:
+                    print("exit: {0:d}".format(status))
+                    exit(status)
 
 
 class NamedTask(object):
@@ -40,9 +45,9 @@ class NamedTask(object):
         self.task_args = args
 
     def run(self):
-        print("Running task: {0:s}".format(self.name))
+        print("+ Running task: {0:s}".format(self.name))
         status = self.task(self.task_args)
         return status
-
+    
 class InternalTask(NamedTask):
     pass
