@@ -23,7 +23,6 @@ setup(name='ipsutils',
       author='Joseph Hunkeler',
       author_email='jhunk@stsci.edu',
       url='http://www.stsci.edu/~jhunk/ips',
-      include_package_data = True,
       package_data = {
           'ipsutils': ['tpl/*.tpl'],
       },
