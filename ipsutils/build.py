@@ -1,4 +1,4 @@
-import shlex
+import os.path
 # This file is part of ipsutils.
 
 # ipsutils is free software: you can redistribute it and/or modify
@@ -14,15 +14,17 @@ import shlex
 # You should have received a copy of the GNU General Public License
 # along with ipsutils.  If not, see <http://www.gnu.org/licenses/>.
 
+#from __future__ import print_function
 from . import env, task
-from pprint import pprint
+from . import tpl
+import stat
 import os
 import sys
 import shutil
 import subprocess
 import string
 import shlex
-from . import tpl
+import tempfile
 
 
 class Build(env.Environment):
@@ -53,34 +55,33 @@ class Build(env.Environment):
         self.controller.task(task.NamedTask('Resolve dependencies', self.manifest_depends_resolve))
 
     def exec_scripted_process(self, *p):
-        """Execute script in .ips
-        This function needs to be rewritten BAD
-        
-        p: tuple of function arguments
-        """
-        # All execution occurs from within the build directory.
-        # This includes all installation-like tasks
+        shebang = "#!/bin/bash\n"
+        fp_tempfile = tempfile.NamedTemporaryFile('w+', prefix='ipsutils_', suffix='.sh', delete=False)
         os.chdir(self.env_pkg['BUILD'])
         err = 0
-        for t in map(list, p):
-            for i in t:
-                if not i:
+        fp_tempfile.write(shebang)
+        for args in p:
+            for arg in args:
+                if not arg:
                     continue
-                for e in i:
+                for line in arg:
                     # Variable expansion occurs here.  Unfortunately, env_pkg is NOT available
                     # from within the configuration class
-                    t = string.Template(string.join(e))
-                    e = t.safe_substitute(self.env_pkg)
-                    e = shlex.split(e)
-                    print("+ {0:s}".format(string.join(e)))
-                    # Using "shell" is dangerous, but we're in the business of danger... right?
-                    proc = subprocess.Popen(e, shell=True, stdout=sys.stdout)
-                    err = proc.wait()
+                    t = string.Template(string.join(line))
+                    line = t.safe_substitute(self.env_pkg)
+                    #print("+ {0:s}".format(line))
+                    fp_tempfile.write(line + '\n')
+        fp_tempfile.flush()
+        os.chmod(fp_tempfile.name, 0755)
+        script = [fp_tempfile.name]
+        proc = subprocess.Popen(script, stdout=sys.stdout)
+        err = proc.wait()
+        
         os.chdir(self.env['IPSBUILD'])
         if err > 0:
             return False
         return True
-
+        
     def source_unpack(self, *p):
         path = os.path.abspath(self.env_pkg['SOURCES'])
         if not os.path.exists(path):
