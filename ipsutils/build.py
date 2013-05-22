@@ -78,10 +78,8 @@ class Build(env.Environment):
         err = proc.wait()
         
         os.chdir(self.env['IPSBUILD'])
-        if err > 0:
-            return False
-        return True
-        
+        return err
+    
     def source_unpack(self, *p):
         path = os.path.abspath(self.env_pkg['SOURCES'])
         if not os.path.exists(path):
@@ -91,10 +89,10 @@ class Build(env.Environment):
             shutil.rmtree(self.env_pkg['BUILD'])
 
         ext = {
-               '.tar': '{0:s} Uxf {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
-               '.tar.gz': '{0:s} Uxfz {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
-               '.tar.bz2': '{0:s} Uxfj {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
-               '.tar.xz': '{0:s} UxfJ {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
+               '.tar': '{0:s} xf {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
+               '.tar.gz': '{0:s} xfz {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
+               '.tar.bz2': '{0:s} xfj {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
+               '.tar.xz': '{0:s} xfJ {1:s} -C {2:s}'.format(self.tool['tar'], path, self.env['BUILD']),
                '.gz': self.tool['gunzip'], # not implemented
                '.bz2': self.tool['bunzip'], # not implemented
                '.zip': self.tool['unzip'] # not implemented
@@ -108,10 +106,7 @@ class Build(env.Environment):
                 proc = subprocess.Popen(cmd)
                 err = proc.wait()
                 break
-        if err is not None:
-            if err > 0:
-                return False
-        return True
+        return err
 
     def create_buildroot(self, *p):
         """Destroy/Create BUILDROOT per execution to keep the envrionment stable
@@ -159,7 +154,6 @@ class Build(env.Environment):
         metadata = file(os.path.join(self.env_meta['METADATA']), 'w+')
         for line in output:
             metadata.writelines(line)
-        print(metadata.name)
         metadata.close()
         return True
 
@@ -178,10 +172,8 @@ class Build(env.Environment):
         fp.close()
         if output:
             for line in output:
-                print(line.rstrip('\n'))
-        if err is not None:
-            return False
-        return True
+                print("{0:s}".format(line))
+        return err
 
     def manifest_mogrify(self, *p):
         command_pkg = [self.tool['pkgmogrify'],
@@ -190,6 +182,11 @@ class Build(env.Environment):
                        self.env_meta['METADATA']]
         command_pkgfmt = [self.tool['pkgfmt']]
         fp = file(self.env_meta['TRANS'], 'w+')
+        # Write %transforms block into transmogrification file
+        # Proper syntax required.
+        for line in self.script_dict['attr']:
+            fp.write(line)
+
         proc_pkg = subprocess.Popen(command_pkg,
                                         stdout=subprocess.PIPE)
         proc_pkgfmt = subprocess.Popen(command_pkgfmt,
@@ -199,10 +196,8 @@ class Build(env.Environment):
         fp.close()
         if output:
             for line in output:
-                print(line.rstrip('\n'))
-        if err is not None:
-            return False
-        return True
+                print("{0:s}".format(line))
+        return err
 
     def manifest_depends(self, *p):
         command_pkg = [self.tool['pkgdepend'],
@@ -221,10 +216,8 @@ class Build(env.Environment):
         fp.close()
         if output:
             for line in output:
-                print(line.rstrip('\n'))
-        if err is not None:
-            return False
-        return True
+                print("{0:s}".format(line))
+        return err
 
     def manifest_depends_resolve(self, *p):
         command_pkg = [self.tool['pkgdepend'],
@@ -233,9 +226,7 @@ class Build(env.Environment):
                        self.env_meta['DEPENDS']]
         proc_pkg = subprocess.Popen(command_pkg)
         err = proc_pkg.wait()
-        if err is not None:
-            return False
-        return True
+        return err
 
     def show_summary(self):
         print("Summary of {0:s}".format(self.key_dict['name']))
