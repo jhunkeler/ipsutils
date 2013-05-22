@@ -53,9 +53,9 @@ class Environment(config.Config):
                 }
 
         self.env_meta = {
-                'METADATA': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.mog'),
+                'TRANS': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.mog'),
                 'FILES': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.1'),
-                'TRANS': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.2'),
+                'FILES_PASS2': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.2'),
                 'DEPENDS': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.3'),
                 'DEPENDSOLVE': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.3.res')
                 }

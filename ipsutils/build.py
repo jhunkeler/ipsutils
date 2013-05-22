@@ -17,6 +17,7 @@ import os.path
 #from __future__ import print_function
 from . import env, task
 from . import tpl
+from . import packaging 
 import stat
 import os
 import sys
@@ -151,7 +152,7 @@ class Build(env.Environment):
         template.close()
 
         # Generate intial IPS metadata file in buildroot
-        metadata = file(os.path.join(self.env_meta['METADATA']), 'w+')
+        metadata = file(os.path.join(self.env_meta['FILES']), 'w+')
         for line in output:
             metadata.writelines(line)
         metadata.close()
@@ -162,7 +163,7 @@ class Build(env.Environment):
                            'generate',
                            self.env_pkg['BUILDPROTO']]
         command_pkgfmt = [self.tool['pkgfmt']]
-        fp = file(self.env_meta['FILES'], 'w+')
+        fp = file(self.env_meta['FILES'], 'a')
         proc_pkg = subprocess.Popen(command_pkg,
                                         stdout=subprocess.PIPE)
         proc_pkgfmt = subprocess.Popen(command_pkgfmt,
@@ -179,14 +180,16 @@ class Build(env.Environment):
         command_pkg = [self.tool['pkgmogrify'],
                        '-DARCH={0:s}'.format(self.key_dict['arch']),
                        self.env_meta['FILES'],
-                       self.env_meta['METADATA']]
+                       self.env_meta['TRANS']]
         command_pkgfmt = [self.tool['pkgfmt']]
         fp = file(self.env_meta['TRANS'], 'w+')
         # Write %transforms block into transmogrification file
         # Proper syntax required.
-        for line in self.script_dict['attr']:
-            fp.write(line)
-
+        for line in self.script_dict['transforms']:
+            fp.writelines(string.join(line))
+        fp.close()
+        
+        fp = file(self.env_meta['FILES_PASS2'], 'w+')
         proc_pkg = subprocess.Popen(command_pkg,
                                         stdout=subprocess.PIPE)
         proc_pkgfmt = subprocess.Popen(command_pkgfmt,
@@ -194,6 +197,7 @@ class Build(env.Environment):
                                        stdout=fp)
         output, err = proc_pkgfmt.communicate()
         fp.close()
+        
         if output:
             for line in output:
                 print("{0:s}".format(line))
@@ -204,7 +208,7 @@ class Build(env.Environment):
                        'generate',
                        '-md',
                        self.env_pkg['BUILDPROTO'],
-                       self.env_meta['TRANS']]
+                       self.env_meta['FILES_PASS2']]
         command_pkgfmt = [self.tool['pkgfmt']]
         fp = file(self.env_meta['DEPENDS'], 'w+')
         proc_pkg = subprocess.Popen(command_pkg,
