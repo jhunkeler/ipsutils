@@ -38,6 +38,7 @@ class Config(object):
                   'build': [],
                   'prep': [],
                   'install': [],
+                  'transforms': [],
                   'files': []
                   }
 
@@ -54,7 +55,7 @@ class Config(object):
                     key_dict[key] = parts[1]
 
         found_data = False
-        code_section = ['%build', '%prep', '%install']
+        code_section = ['%build', '%prep', '%install', '%transforms']
 
         for section in code_section:
             for line in file(ipsfile).readlines():
