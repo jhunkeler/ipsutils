@@ -28,7 +28,7 @@ class TaskController(object):
         """
         for stack_entry in self.stack:
             status = stack_entry.run()
-            if type(status) == type(bool):
+            if type(status) == type(True):
                 if not status:
                     print("Internal error: {0:s}".format(status))
                     exit(status)
