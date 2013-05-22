@@ -56,7 +56,8 @@ class Environment(config.Config):
                 'METADATA': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.mog'),
                 'FILES': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.1'),
                 'TRANS': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.2'),
-                'DEPENDS': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.3')
+                'DEPENDS': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.3'),
+                'DEPENDSOLVE': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.3.res')
                 }
         # Generic utility mapping for platform specific configuration.
         # Note: This is mainly to test script functionality on different platforms
@@ -72,7 +73,7 @@ class Environment(config.Config):
                     'pkgfmt': 'pkgfmt'
                     }
 
-        # Oracle tar is ancient.  GNU tar is preferrred.
+        # Oracle Solaris tar is ancient.  GNU tar is preferrred.
         if sys.platform == 'sunos5':
             self.tool['tar'] = 'gtar'
 
