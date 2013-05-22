@@ -1,15 +1,15 @@
 name:           ipsutils
 version:        0.2.0
 release:        1
-maintainer:     test person
+maintainer:     "Joseph Hunkeler <jhunk@stsci.edu>"
 upstream_url:   http://localhost/ipsutils-0.2.0.tar.gz
 source_url:     http://localhost/ipsutils-0.2.0.tar.gz
-description:    "a test package"
-summary:        "test package"
+description:    "Python IPS library"
+summary:        "A python based IPS library"
 group:          developer
-classification: "edu.stsci:Development/Solaris 11"
-arch:          i386
-license:       GPL
+classification: "org.opensolaris.category.2008:Development/Distribution Tools"
+arch:           i386
+license:        GPL
 
 %setup
 %end
@@ -23,6 +23,5 @@ python setup.py build
 %end
 
 %install
-python setup.py install --root=$BUILDPROTO --prefix=/usr
-
+python setup.py install --root=$BUILDPROTO --prefix=/opt/ipsutils
 %end
