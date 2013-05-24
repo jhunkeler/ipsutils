@@ -20,9 +20,9 @@ import os
 
 # Initialize argument parser
 parser = argparse.ArgumentParser(description='Build Solaris 11 packages from .ips spec files')
-parser.add_argument('--version', nargs='?', metavar='-V', help='Show version information')
-parser.add_argument('--verbose', nargs='?', metavar='-v', help='Increased verbosity')
-parser.add_argument('spec', nargs='+', help='An ipsutils spec file')
+parser.add_argument('--version', action="store_true", help='Show version information')
+parser.add_argument('--verbose', action="store_true", help='Increased verbosity')
+parser.add_argument('spec', nargs='*', help='An ipsutils spec file')
 args = parser.parse_args()
 
 # Record current path, because we change directories from within the class
@@ -30,7 +30,7 @@ args = parser.parse_args()
 cwd = os.path.abspath(os.curdir)
 if args.spec:
     for spec in args.spec:
-        build = ipsutils.build.Build(spec)
+        build = ipsutils.build.Build(spec, options=args)
         build.show_summary()
         build.controller.do_tasks()
         os.chdir(cwd)
