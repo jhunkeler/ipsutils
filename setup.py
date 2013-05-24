@@ -14,19 +14,35 @@
 # You should have received a copy of the GNU General Public License
 # along with ipsutils.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from distutils.core import setup
 
-setup(name='ipsutils',
-      version='0.3.0',
-      description='Solaris 11 IPS packaging library',
-      license='GPL',
-      author='Joseph Hunkeler',
-      author_email='jhunk@stsci.edu',
-      url='http://www.stsci.edu/~jhunk/ips',
-      package_data = {
-          'ipsutils': ['tpl/*.tpl'],
-      },
-      packages=['ipsutils', 'ipsutils/tpl'],
-      scripts=['ipsbuild.py', 'ipsbuild-setuptree.py'],
-      platforms=['sunos5', 'linux2']
+name='ipsutils'
+version='0.3.1'
+description='Solaris 11 IPS packaging library'
+license='GPL'
+author='Joseph Hunkeler'
+author_email='jhunk@stsci.edu'
+url='http://bitbucket.org/jhunkeler/ipsbuild.git'
+package_data = {
+  'ipsutils': ['tpl/*.tpl'],
+}
+packages=['ipsutils', 'ipsutils/tpl']
+scripts=['ipsbuild.py', 'ipsbuild-setuptree.py']
+platforms=['sunos5', 'linux2']
+
+with open(os.path.join(name, 'version.py'), 'w+') as fp:
+    fp.writelines("__version__ = '{0:s}'\n".format(version))
+
+setup(name=name,
+      version=version,
+      description=description,
+      license=license,
+      author=author,
+      author_email=author_email,
+      url=url,
+      package_data=package_data,
+      packages=packages,
+      scripts=scripts,
+      platforms=platforms
       )
