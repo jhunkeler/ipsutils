@@ -34,3 +34,6 @@ if args.spec:
         build.show_summary()
         build.controller.do_tasks()
         os.chdir(cwd)
+else:
+    print("For detailed usage information:\n\t--help or -h")
+exit(0)
