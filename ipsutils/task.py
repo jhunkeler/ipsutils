@@ -30,7 +30,7 @@ class TaskController(object):
             status = stack_entry.run()
             if type(status) == type(True):
                 if not status:
-                    print("Internal error: {0:s}".format(status))
+                    print("Internal error: {0:d}".format(status))
                     exit(status)
             else:
                 if status > 0:

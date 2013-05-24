@@ -29,11 +29,14 @@ import tempfile
 
 
 class Build(env.Environment):
-    def __init__(self, ipsfile):
+    def __init__(self, ipsfile, *args, **kwargs):
         # Parent Config parses configuration data in .ips file
         # Inherited members are used to populate package information
         # as well as build tasks
         super(Build, self).__init__(ipsfile)
+        
+        if 'options' in kwargs:
+            self.options = kwargs['options']
 
         os.chdir(self.env['IPSBUILD'])
         # Create list of build tasks
@@ -70,13 +73,15 @@ class Build(env.Environment):
                     # from within the configuration class
                     t = string.Template(string.join(line))
                     line = t.safe_substitute(self.env_pkg)
-                    #print("+ {0:s}".format(line))
                     fp_tempfile.write(line + '\n')
+                    if self.options.verbose:
+                        print(">>> {0:s}".format(line))
         fp_tempfile.flush()
         os.chmod(fp_tempfile.name, 0755)
         script = [fp_tempfile.name]
         proc = subprocess.Popen(script, stdout=sys.stdout)
         err = proc.wait()
+        fp_tempfile.close()
         
         os.chdir(self.env['IPSBUILD'])
         return err
@@ -103,7 +108,8 @@ class Build(env.Environment):
         for k, v in ext.items():
             if k in path:
                 cmd = v.split()
-                print(string.join(cmd))
+                if self.options.verbose:
+                    print(string.join(cmd))
                 proc = subprocess.Popen(cmd)
                 err = proc.wait()
                 break
@@ -154,6 +160,8 @@ class Build(env.Environment):
         # Generate intial IPS metadata file in buildroot
         metadata = file(os.path.join(self.env_meta['FILES']), 'w+')
         for line in output:
+            if self.options.verbose:
+                print(">>> {0:s}".format(line))                        
             metadata.writelines(line)
         metadata.close()
         return True
@@ -171,9 +179,10 @@ class Build(env.Environment):
                                        stdout=fp)
         output, err = proc_pkgfmt.communicate()
         fp.close()
-        if output:
-            for line in output:
-                print("{0:s}".format(line))
+        if self.options.verbose:
+            if output:
+                for line in output:
+                    print(">>> {0:s}".format(line))
         return err
 
     def manifest_mogrify(self, *p):
@@ -198,9 +207,10 @@ class Build(env.Environment):
         output, err = proc_pkgfmt.communicate()
         fp.close()
         
-        if output:
-            for line in output:
-                print("{0:s}".format(line))
+        if self.options.verbose:
+            if output:
+                for line in output:
+                    print(">>> {0:s}".format(line))
         return err
 
     def manifest_depends(self, *p):
@@ -218,9 +228,10 @@ class Build(env.Environment):
                                        stdout=fp)
         output, err = proc_pkgfmt.communicate()
         fp.close()
-        if output:
-            for line in output:
-                print("{0:s}".format(line))
+        if self.options.verbose:
+            if output:
+                for line in output:
+                    print(">>> {0:s}".format(line))
         return err
 
     def manifest_depends_resolve(self, *p):
@@ -228,7 +239,7 @@ class Build(env.Environment):
                        'resolve',
                        '-m',
                        self.env_meta['DEPENDS']]
-        proc_pkg = subprocess.Popen(command_pkg)
+        proc_pkg = subprocess.Popen(command_pkg, stderr=subprocess.STDOUT)
         err = proc_pkg.wait()
         return err
 
