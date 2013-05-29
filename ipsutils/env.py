@@ -21,9 +21,10 @@ from . import config
 class Environment(config.Config):
     def __init__(self, ipsfile):
         super(Environment, self).__init__(ipsfile)
-
+        
         # Platform specific ipsbuild directory assignment
         if sys.platform == 'linux2' \
+            or sys.platform == 'linux' \
             or sys.platform == 'sunos5':
             self.__basepath = os.path.join(os.environ['HOME'], 'ipsbuild')
         else:
@@ -45,7 +46,7 @@ class Environment(config.Config):
         # Dictionary of package-level directories
         self.env_pkg = {
                 'BUILDROOT': os.path.join(self.env['BUILDROOT'], self.complete_name),
-                'BUILDPROTO': os.path.join(self.env['BUILDROOT'], self.complete_name, 'proto_install'),
+                'BUILDPROTO': os.path.join(self.env['BUILDROOT'], self.complete_name, 'root'),
                 'BUILD': os.path.join(self.env['BUILD'], self.complete_name),
                 'SOURCES': os.path.join(self.env['SOURCES'], os.path.basename(self.key_dict['source_url'])),
                 'PKGS': os.path.join(self.env['PKGS'], self.complete_name),
@@ -53,11 +54,11 @@ class Environment(config.Config):
                 }
 
         self.env_meta = {
-                'TRANS': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.mog'),
-                'FILES': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.1'),
-                'FILES_PASS2': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.2'),
-                'DEPENDS': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.3'),
-                'DEPENDSOLVE': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.p5m.3.res')
+                'STAGE1': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.1'),
+                'STAGE1_PASS2': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.1p2'),
+                'STAGE2': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.2'),
+                'STAGE3': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name),
+                'STAGE4': os.path.join(self.env_pkg['BUILDROOT'], self.complete_name + '.res')
                 }
         # Generic utility mapping for platform specific configuration.
         # Note: This is mainly to test script functionality on different platforms
@@ -73,7 +74,7 @@ class Environment(config.Config):
                     'pkgfmt': 'pkgfmt'
                     }
 
-        # Oracle Solaris tar is ancient.  GNU tar is preferrred.
+        # Oracle Solaris tar is ancient.  GNU tar is preferred.
         if sys.platform == 'sunos5':
             self.tool['tar'] = 'gtar'
 
