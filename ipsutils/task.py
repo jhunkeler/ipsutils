@@ -13,6 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with ipsutils.  If not, see <http://www.gnu.org/licenses/>.
 
+class TaskException(Exception):
+    pass
+
 class TaskController(object):
     def __init__(self):
         self.stack = []
@@ -37,6 +40,34 @@ class TaskController(object):
                     print("exit: {0:d}".format(status))
                     exit(status)
 
+class Task(object):
+    def __init__(self, *args, **kwargs):
+        self.name = ''
+        if 'name' in kwargs:
+            self.name = kwargs['name']
+        
+        if 'func' in kwargs:
+            self.func = kwargs['func']
+        else:
+            self.func = None
+            
+        if 'cls' in kwargs:
+            self.cls = kwargs['cls']
+        else:
+            self.cls = object()
+    
+    def run(self):
+        if not self.name:
+            raise TaskException("Unnamed task in: {}".format(self.__class__.__name__))
+        
+        print("+ Running task: {0:s}".format(self.name))
+        status = self.task()
+        return status
+        
+    def task(self):
+        raise NotImplementedError('Task undefined')
+        
+        
 
 class NamedTask(object):
     def __init__(self, name, func, *args):
