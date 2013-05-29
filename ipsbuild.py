@@ -30,7 +30,7 @@ args = parser.parse_args()
 cwd = os.path.abspath(os.curdir)
 if args.spec:
     for spec in args.spec:
-        build = ipsutils.build.Build(spec, options=args)
+        build = ipsutils.build.Build(os.path.abspath(spec), options=args)
         build.show_summary()
         build.controller.do_tasks()
         os.chdir(cwd)
