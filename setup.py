@@ -17,32 +17,32 @@
 import os
 from distutils.core import setup
 
-name='ipsutils'
-version='0.3.1'
-description='Solaris 11 IPS packaging library'
-license='GPL'
-author='Joseph Hunkeler'
-author_email='jhunk@stsci.edu'
-url='http://bitbucket.org/jhunkeler/ipsbuild.git'
-package_data = {
+NAME='ipsutils'
+VERSION='0.3.1'
+DESCRIPTION='Solaris 11 IPS packaging library'
+LICENSE='GPL'
+AUTHOR='Joseph Hunkeler'
+AUTHOR_EMAIL='jhunk@stsci.edu'
+URL='http://bitbucket.org/jhunkeler/ipsbuild.git'
+PACKAGE_DATA = {
   'ipsutils': ['tpl/*.tpl'],
 }
-packages=['ipsutils', 'ipsutils/tpl']
-scripts=['ipsbuild.py', 'ipsbuild-setuptree.py']
-platforms=['sunos5', 'linux2']
+PACKAGES=['ipsutils', 'ipsutils/tpl']
+SCRIPTS=['ipsbuild.py', 'ipsbuild-setuptree.py']
+PLATFORMS=['sunos5', 'linux2', 'linux']
 
-with open(os.path.join(name, 'version.py'), 'w+') as fp:
-    fp.writelines("__version__ = '{0:s}'\n".format(version))
+with open(os.path.join(NAME, 'version.py'), 'w+') as fp:
+    fp.writelines("__version__ = '{0:s}'\n".format(VERSION))
 
-setup(name=name,
-      version=version,
-      description=description,
-      license=license,
-      author=author,
-      author_email=author_email,
-      url=url,
-      package_data=package_data,
-      packages=packages,
-      scripts=scripts,
-      platforms=platforms
+setup(name=NAME,
+      version=VERSION,
+      description=DESCRIPTION,
+      license=LICENSE,
+      author=AUTHOR,
+      author_email=AUTHOR_EMAIL,
+      url=URL,
+      package_data=PACKAGE_DATA,
+      packages=PACKAGES,
+      scripts=SCRIPTS,
+      platforms=PLATFORMS
       )
