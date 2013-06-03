@@ -262,6 +262,7 @@ class Script(task.Task):
             t = string.Template(string.join(line))
             line = t.safe_substitute(self.cls.env_pkg)
             fp_tempfile.writelines(line)
+            fp_tempfile.writelines('\n')
             if self.cls.options.verbose:
                 print(">>> {0:s}".format(line))
         fp_tempfile.flush()
