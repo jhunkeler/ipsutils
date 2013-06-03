@@ -32,7 +32,7 @@ class Build(env.Environment):
         os.chdir(self.env['IPSBUILD'])
         # Create list of build tasks
         ordered_tasks = ['prep', 'build', 'install']
-        self.controller = task.TaskController()
+        self.controller = task.Controller()
 
         # Assign built-in IPS tasks
         self.controller.task(tasks.Unpack(cls=self))
@@ -48,6 +48,8 @@ class Build(env.Environment):
         self.controller.task(tasks.Transmogrify(cls=self))
         self.controller.task(tasks.Dependencies(cls=self))
         self.controller.task(tasks.Resolve_Dependencies(cls=self))
+        if self.options.lint:
+            self.controller.task(tasks.Lint(cls=self))
         self.controller.task(tasks.Package(cls=self))
         self.controller.task(tasks.Package(cls=self, spkg=True))
 
