@@ -27,8 +27,10 @@ class Environment(config.Config):
             or sys.platform == 'linux' \
             or sys.platform == 'sunos5':
             self.__basepath = os.path.join(os.environ['HOME'], 'ipsbuild')
+            self.home = os.environ['HOME']
         else:
             self.__basepath = os.path.join(os.environ['USERPROFILE'], 'ipsbuild')
+            self.home = os.environ['USERPROFILE']
 
         # Dictionary of top-level directories
         self.env = {
@@ -71,6 +73,7 @@ class Environment(config.Config):
                     'pkgsend': 'pkgsend',
                     'pkgmogrify': 'pkgmogrify',
                     'pkgdepend': 'pkgdepend',
+                    'pkglint': 'pkglint',
                     'pkgfmt': 'pkgfmt'
                     }
 
