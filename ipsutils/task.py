@@ -16,7 +16,7 @@
 class TaskException(Exception):
     pass
 
-class TaskController(object):
+class Controller(object):
     def __init__(self):
         self.stack = []
 
@@ -29,6 +29,9 @@ class TaskController(object):
     def do_tasks(self):
         """ FILO execution of tasks
         """
+        if not self.stack:
+            raise TaskException("Empty controller stack")
+        
         for stack_entry in self.stack:
             status = stack_entry.run()
             if type(status) == type(True):
