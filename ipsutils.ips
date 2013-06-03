@@ -1,9 +1,9 @@
 name:           ipsutils
-version:        0.3.1
+version:        0.4.0
 release:        1
 maintainer:     "Joseph Hunkeler <jhunk@stsci.edu>"
-upstream_url:   http://localhost/ipsutils-0.3.1.tar.gz
-source_url:     http://localhost/ipsutils-0.3.1.tar.gz
+upstream_url:   http://localhost/ipsutils-0.4.0.tar.gz
+source_url:     http://localhost/ipsutils-0.4.0.tar.gz
 description:    "Python IPS library"
 summary:        "A python based IPS library"
 group:          developer
