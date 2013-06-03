@@ -26,6 +26,10 @@ parser.add_argument('--lint', action="store_true", help='Enables deep packaging 
 parser.add_argument('spec', nargs='*', help='An ipsutils spec file')
 args = parser.parse_args()
 
+if args.version:
+    print("{0:s}".format(ipsutils.__version__))
+    exit(0)
+
 # Record current path, because we change directories from within the class
 # This way all spec files will be read
 cwd = os.path.abspath(os.curdir)
