@@ -7,6 +7,45 @@ import subprocess
 import sys
 import tempfile
 
+
+class Lint(task.Task):
+    def __init__(self, *args, **kwargs):
+        super(Lint, self).__init__(self, *args, **kwargs)
+        self.name = "Package LINT checking (this may take a while...)"
+        self.cachedir = os.path.join(os.environ['HOME'], '.ipscache')
+        
+    def _check_cache(self):
+        if not os.path.exists(self.cachedir):
+            print("Creating cache directory: {0:s}".format(self.cachedir))
+            os.mkdir(self.cachedir)
+            return False
+        return True
+            
+    def _create_cache(self):
+        command_pkg = [self.cls.tool['pkglint'],
+                       '-c',
+                       self.cachedir,
+                       '-r',
+                       'http://pkg.oracle.com/solaris/release/',
+                       self.cls.env_meta['STAGE4']]
+        print("Creating cache (this may take a while...)")
+        proc_pkg = subprocess.Popen(command_pkg, stderr=subprocess.STDOUT)  
+        err = proc_pkg.wait()
+        return err
+        
+    def task(self):
+        if not self._check_cache():
+            self._create_cache()
+            
+        command_pkg = [self.cls.tool['pkglint'],
+                       '-c',
+                       self.cachedir,
+                       self.cls.env_meta['STAGE4']]
+        proc_pkg = subprocess.Popen(command_pkg, stderr=subprocess.STDOUT)
+        err = proc_pkg.wait()
+        return err
+    
+    
 class Resolve_Dependencies(task.Task):
     def __init__(self, *args, **kwargs):
         super(Resolve_Dependencies, self).__init__(self, *args, **kwargs)
