@@ -167,7 +167,7 @@ class Unpack(task.Task):
                '.tar.xz': '{0:s} xfJ {1:s} -C {2:s}'.format(self.cls.tool['tar'], path, self.cls.env['BUILD']),
                '.gz': self.cls.tool['gunzip'], # not implemented
                '.bz2': self.cls.tool['bunzip'], # not implemented
-               '.zip': self.cls.tool['unzip'] # not implemented
+               '.zip': '{0:s} {1:s} -d {2:s}'.format(self.cls.tool['unzip'], path, self.cls.env['BUILD'])
         }
 
         err = None
