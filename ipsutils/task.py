@@ -16,6 +16,9 @@
 class TaskException(Exception):
     pass
 
+class InternalTaskException(Exception):
+    pass
+
 class Controller(object):
     def __init__(self):
         self.stack = []
@@ -69,19 +72,15 @@ class Task(object):
         
     def task(self):
         raise NotImplementedError('Task undefined')
-        
-        
 
-class NamedTask(object):
-    def __init__(self, name, func, *args):
-        self.name = name
-        self.task = func
-        self.task_args = args
+
+class Internal(Task):
+    def __init__(self, *args, **kwargs):
+        super(Internal, self).__init__(self, *args, **kwargs)
 
     def run(self):
-        print("+ Running task: {0:s}".format(self.name))
-        status = self.task(self.task_args)
+        if not self.name:
+            raise InternalTaskException("Unnamed task in : {}".format(self.name))
+        print("> Running internal task: {0:s}".format(self.name))
+        status = self.task()
         return status
-    
-class InternalTask(NamedTask):
-    pass
