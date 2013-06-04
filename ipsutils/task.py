@@ -42,7 +42,7 @@ class Controller(object):
                     print("Internal error: {0:d}".format(status))
                     exit(status)
             else:
-                if status > 0:
+                if status is not 0:
                     print("exit: {0:d}".format(status))
                     exit(status)
 
