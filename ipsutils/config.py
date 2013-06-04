@@ -14,6 +14,7 @@
 # along with ipsutils.  If not, see <http://www.gnu.org/licenses/>.
 import shlex
 import string
+import StringIO
 
 class Config(object):
     def __init__(self, ipsfile):
@@ -42,14 +43,29 @@ class Config(object):
                   'files': []
                   }
 
-        expandable = []
-        for line in file(ipsfile).readlines():
-            parts = shlex.split(line)
-            t = string.Template(parts)
-            expandable.append(t)
-
+        #Initial key_dict population with raw values taken from ips file
         for key in key_dict:
             for line in file(ipsfile).readlines():
+                parts = shlex.split(line)
+                if key + ":" in parts:
+                    key_dict[key] = parts[1]
+
+        #Drop using the original file in favor of a StringIO buffer
+        #Because we need room to breathe without rewriting the file
+        #every time we run a build... that's a no-go.
+        ipsfile_input = StringIO.StringIO()
+        for line in file(ipsfile).readlines():
+            t = string.Template(line)
+            new_line = t.safe_substitute(key_dict)
+            ipsfile_input.writelines(new_line)
+
+        #Turn our input buffer into an output buffer then ditch the original.
+        ipsfile_output = StringIO.StringIO(ipsfile_input.getvalue()).readlines()
+        ipsfile_input.close()
+
+        # Populate key_dict with expanded values
+        for key in key_dict:
+            for line in ipsfile_output:
                 parts = shlex.split(line)
                 if key + ":" in parts:
                     key_dict[key] = parts[1]
@@ -58,7 +74,7 @@ class Config(object):
         code_section = ['%build', '%prep', '%install', '%transforms']
 
         for section in code_section:
-            for line in file(ipsfile).readlines():
+            for line in ipsfile_output:
                 if not line:
                     continue
                 if line.startswith('#'):
@@ -72,5 +88,6 @@ class Config(object):
                 if found_data:
                     script_dict[section.strip('%')].append(parts)
 
+        #Assign completed dictionaries to global class scope
         self.key_dict = key_dict
         self.script_dict = script_dict
