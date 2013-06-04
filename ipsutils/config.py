@@ -70,6 +70,7 @@ class Config(object):
                 if key + ":" in parts:
                     key_dict[key] = parts[1]
 
+        #Parse user defined scripts by section and store them in script_dict
         found_data = False
         code_section = ['%build', '%prep', '%install', '%transforms']
 
@@ -91,3 +92,16 @@ class Config(object):
         #Assign completed dictionaries to global class scope
         self.key_dict = key_dict
         self.script_dict = script_dict
+        if not self.check_keywords():
+            exit(1)
+
+    def check_keywords(self):
+        mandatory = ['arch', 'classification', 'description', 'group',
+        'license', 'maintainer', 'name', 'release', 'source_url', 'summary',
+        'version']
+        #Get list of keys without data
+        for k, v in sorted(self.key_dict.items()):
+            if k in mandatory and not v:
+                print("Mandatory keyword \'{}\' has no value".format(k))
+                return False
+        return True
