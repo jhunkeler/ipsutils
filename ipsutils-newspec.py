@@ -45,3 +45,5 @@ if args.spec:
             fp.write('%end\n')
         fp.flush()
         fp.close()
+else:
+    print("For detailed usage information:\n\t--help or -h")
