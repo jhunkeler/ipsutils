@@ -39,11 +39,12 @@ class Controller(object):
             status = stack_entry.run()
             if type(status) == type(True):
                 if not status:
-                    print("Internal error: {0:d}".format(status))
+                    print("Internal error: {}".format(status))
                     exit(status)
             else:
-                if status is not 0:
-                    print("exit: {0:d}".format(status))
+                if status is not 0 \
+                and status is not None:
+                    print("exit: {}".format(status))
                     exit(status)
 
 class Task(object):
