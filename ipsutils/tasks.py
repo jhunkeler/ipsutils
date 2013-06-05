@@ -5,7 +5,9 @@ import string
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
+import zipfile
 
 
 class Lint(task.Task):
@@ -151,7 +153,22 @@ class Unpack(task.Task):
     def __init__(self, *args, **kwargs):
         super(Unpack, self).__init__(self, *args, **kwargs)
         self.name = "Unpack source"
-        
+
+    def tar(self, src, dest):
+        if not tarfile.is_tarfile(src):
+            raise TaskException('Not a valid tar file')
+        archive = tarfile.open(src)
+        archive.extractall(dest)
+        archive.close()
+        return True
+    
+    def zip(self, src, dest):
+        if not zipfile.is_zipfile(src):
+            raise TaskException('Not a valid zip file')
+        archive = zipfile.open(src)
+        archive.extractall(dest)
+        return True
+    
     def task(self):
         path = os.path.abspath(self.cls.env_pkg['SOURCES'])
         if not os.path.exists(path):
@@ -161,23 +178,18 @@ class Unpack(task.Task):
             shutil.rmtree(self.cls.env_pkg['BUILD'])
 
         ext = {
-               '.tar': '{0:s} xf {1:s} -C {2:s}'.format(self.cls.tool['tar'], path, self.cls.env['BUILD']),
-               '.tar.gz': '{0:s} xfz {1:s} -C {2:s}'.format(self.cls.tool['tar'], path, self.cls.env['BUILD']),
-               '.tar.bz2': '{0:s} xfj {1:s} -C {2:s}'.format(self.cls.tool['tar'], path, self.cls.env['BUILD']),
-               '.tar.xz': '{0:s} xfJ {1:s} -C {2:s}'.format(self.cls.tool['tar'], path, self.cls.env['BUILD']),
-               '.gz': self.cls.tool['gunzip'], # not implemented
-               '.bz2': self.cls.tool['bunzip'], # not implemented
-               '.zip': '{0:s} {1:s} -d {2:s}'.format(self.cls.tool['unzip'], path, self.cls.env['BUILD'])
+               '.tar': self.tar(path, self.cls.env['BUILD']),
+               '.tar.gz': self.tar(path, self.cls.env['BUILD']),
+               '.tar.bz2': self.tar(path, self.cls.env['BUILD']),
+               '.tar.xz': self.tar(path, self.cls.env['BUILD']),
+               '.zip': self.zip(path, self.cls.env['BUILD'])
         }
 
+        
         err = None
         for k, v in ext.items():
             if k in path:
-                cmd = v.split()
-                if self.cls.options.verbose:
-                    print(string.join(cmd))
-                proc = subprocess.Popen(cmd)
-                err = proc.wait()
+                print("Archive with extension: {}".format(k))
                 break
         return err
 
