@@ -15,33 +15,36 @@
 import shlex
 import string
 import StringIO
+import collections
 
 class Config(object):
-    def __init__(self, ipsfile):
+    def __init__(self, ipsfile=''):
         super(Config, self).__init__()
-        key_dict = {
-                'name': '',
-                'repackage': '',
-                'version': '',
-                'release': '',
-                'maintainer': '',
-                'group': '',
-                'upstream_url': '',
-                'source_url': '',
-                'description': '',
-                'summary': '',
-                'classification': '',
-                'arch': '',
-                'license': ''
-                }
+        key_dict = collections.OrderedDict()
+        key_dict['name'] = ''
+        key_dict['repackage'] = ''
+        key_dict['version'] = ''
+        key_dict['release'] = ''
+        key_dict['group'] = ''
+        key_dict['summary'] = ''
+        key_dict['license'] = ''
+        key_dict['maintainer'] = ''
+        key_dict['upstream_url'] = ''
+        key_dict['source_url'] = ''
+        key_dict['arch'] = ''
+        key_dict['classification'] = ''
+        key_dict['description'] = ''
 
-        script_dict = {
-                  'build': [],
-                  'prep': [],
-                  'install': [],
-                  'transforms': [],
-                  'files': []
-                  }
+        script_dict = collections.OrderedDict()
+        script_dict['prep'] =  []
+        script_dict['build'] = []
+        script_dict['install'] =  []
+        script_dict['transforms'] =  []
+        
+        if not ipsfile:
+            self.key_dict = key_dict
+            self.script_dict = script_dict
+            return
 
         #Initial key_dict population with raw values taken from ips file
         for key in key_dict:
