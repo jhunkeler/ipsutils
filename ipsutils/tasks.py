@@ -106,8 +106,9 @@ class Transmogrify(task.Task):
         # Proper syntax required.
         for line in self.cls.script_dict['transforms']:
             fp.writelines(string.join(line))
+            fp.writelines('\n')
         fp.close()
-        
+
         fp = file(self.cls.env_meta['STAGE1_PASS2'], 'w+')
         proc_pkg = subprocess.Popen(command_pkg,
                                         stdout=subprocess.PIPE)
@@ -116,7 +117,7 @@ class Transmogrify(task.Task):
                                        stdout=fp)
         output, err = proc_pkgfmt.communicate()
         fp.close()
-        
+
         if self.cls.options.verbose:
             if output:
                 for line in output:
@@ -154,18 +155,18 @@ class Unpack(task.Task):
         super(Unpack, self).__init__(self, *args, **kwargs)
         self.name = "Unpack source"
 
-    def tar(self, src, dest):
+    def untar(self, src, dest):
         if not tarfile.is_tarfile(src):
-            raise TaskException('Not a valid tar file')
+            return False
         archive = tarfile.open(src)
         archive.extractall(dest)
         archive.close()
         return True
     
-    def zip(self, src, dest):
+    def unzip(self, src, dest):
         if not zipfile.is_zipfile(src):
-            raise TaskException('Not a valid zip file')
-        archive = zipfile.open(src)
+            return False
+        archive = zipfile.ZipFile(src)
         archive.extractall(dest)
         return True
     
@@ -178,18 +179,16 @@ class Unpack(task.Task):
             shutil.rmtree(self.cls.env_pkg['BUILD'])
 
         ext = {
-               '.tar': self.tar(path, self.cls.env['BUILD']),
-               '.tar.gz': self.tar(path, self.cls.env['BUILD']),
-               '.tar.bz2': self.tar(path, self.cls.env['BUILD']),
-               '.tar.xz': self.tar(path, self.cls.env['BUILD']),
-               '.zip': self.zip(path, self.cls.env['BUILD'])
+               '.tar': self.untar(path, self.cls.env['BUILD']),
+               '.tar.gz': self.untar(path, self.cls.env['BUILD']),
+               '.tar.bz2': self.untar(path, self.cls.env['BUILD']),
+               '.zip': self.unzip(path, self.cls.env['BUILD'])
         }
 
-        
         err = None
-        for k, v in ext.items():
+        for k, _ in ext.items():
             if k in path:
-                print("Archive with extension: {}".format(k))
+                print("Detected archive with extension: {}".format(k, _))
                 break
         return err
 
@@ -201,8 +200,6 @@ class Buildroot(task.Task):
         
     def task(self):
         """Destroy/Create BUILDROOT per execution to keep the environment stable
-        
-        p: tuple of function arguments
         """
         path = self.cls.env_pkg['BUILDROOT']
         if os.path.exists(path):
