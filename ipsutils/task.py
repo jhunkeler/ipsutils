@@ -29,7 +29,7 @@ class Controller(object):
         """
         self.stack.append(t)
 
-    def do_tasks(self):
+    def do_tasks(self, atexit=None):
         """ FILO execution of tasks
         """
         if not self.stack:
@@ -40,11 +40,15 @@ class Controller(object):
             if type(status) == type(True):
                 if not status:
                     print("Internal error: {}".format(status))
+                    if atexit is not None:
+                        atexit()
                     exit(status)
             else:
                 if status is not 0 \
                 and status is not None:
                     print("exit: {}".format(status))
+                    if atexit is not None:
+                        atexit()                    
                     exit(status)
 
 class Task(object):
