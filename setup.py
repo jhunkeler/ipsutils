@@ -28,7 +28,7 @@ PACKAGE_DATA = {
   'ipsutils': ['tpl/*.tpl'],
 }
 PACKAGES=['ipsutils', 'ipsutils/tpl']
-SCRIPTS=['ipsbuild.py', 'ipsbuild-setuptree.py', 'ipsutils-newspec.py']
+SCRIPTS=['ipsbuild.py', 'ipsbuild-setuptree.py', 'ipsutils-newspec.py', 'ipsutils-sanity.py']
 PLATFORMS=['sunos5', 'linux2', 'linux']
 
 with open(os.path.join(NAME, 'version.py'), 'w+') as fp:
