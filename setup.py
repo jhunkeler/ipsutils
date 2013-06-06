@@ -18,7 +18,7 @@ import os
 from distutils.core import setup
 
 NAME='ipsutils'
-VERSION='0.4.0'
+VERSION='0.5.0'
 DESCRIPTION='Solaris 11 IPS packaging library'
 LICENSE='GPL'
 AUTHOR='Joseph Hunkeler'
