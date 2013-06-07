@@ -10,3 +10,4 @@ src/*.pyc
 data
 converted
 images
+ipsutils/version.py
