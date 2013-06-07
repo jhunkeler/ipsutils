@@ -19,7 +19,11 @@ import collections
 
 class Config(object):
     def __init__(self, ipsfile=''):
+        """SPEC file parsing engine.
+        """
         super(Config, self).__init__()
+        
+        #Defines possible FMRI section keywords used by IPS
         key_dict = collections.OrderedDict()
         key_dict['name'] = ''
         key_dict['repackage'] = ''
@@ -35,6 +39,7 @@ class Config(object):
         key_dict['classification'] = ''
         key_dict['description'] = ''
 
+        #Define valid build script sections in SPEC file
         script_dict = collections.OrderedDict()
         script_dict['prep'] =  []
         script_dict['build'] = []
@@ -99,6 +104,8 @@ class Config(object):
             exit(1)
 
     def check_keywords(self):
+        """Validate SPEC file's FMRI section
+        """
         mandatory = ['arch', 'classification', 'description', 'group',
         'license', 'maintainer', 'name', 'release', 'source_url', 'summary',
         'version']

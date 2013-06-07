@@ -20,11 +20,13 @@ import os
 
 class Build(env.Environment):
     def __init__(self, ipsfile, *args, **kwargs):
-        # Parent Config parses configuration data in .ips file
-        # Inherited members are used to populate package information
-        # as well as build tasks
+        """Enqueue's build tasks in the controller stack and fire's off the
+        build procedure.
+        """
         super(Build, self).__init__(ipsfile)
         self.ipsfile = ipsfile
+        # Inherited members are used to populate package information
+        # as well as build tasks        
         
         if 'options' in kwargs:
             self.options = kwargs['options']

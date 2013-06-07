@@ -20,6 +20,10 @@ from . import config
 
 class Environment(config.Config):
     def __init__(self, ipsfile):
+        """Implements an extended environment from the Config class.
+        
+        ipsfile = A valid SPEC file
+        """
         super(Environment, self).__init__(ipsfile)
         
         # Platform specific ipsbuild directory assignment
