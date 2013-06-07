@@ -26,6 +26,11 @@ import zipfile
 
 class Lint(task.Task):
     def __init__(self, *args, **kwargs):
+        """Execute LINT engine.
+        In order to facility continued use, a cache directory is created 
+        in the user's home directory to store pkglint manifests.  There is 
+        *nothing* fast about pkglint (even with the cache). 
+        """
         super(Lint, self).__init__(self, *args, **kwargs)
         self.name = "Package LINT checking (this may take a while...)"
         self.cachedir = os.path.join(os.environ['HOME'], '.ipscache')
@@ -64,6 +69,9 @@ class Lint(task.Task):
     
 class Resolve_Dependencies(task.Task):
     def __init__(self, *args, **kwargs):
+        """Automatically resolve dependencies.
+        Note: IPS does a poor job of parsing Python dependencies.
+        """
         super(Resolve_Dependencies, self).__init__(self, *args, **kwargs)
         self.name = "Dependency resolution"
         
@@ -79,6 +87,9 @@ class Resolve_Dependencies(task.Task):
 
 class Dependencies(task.Task):
     def __init__(self, *args, **kwargs):
+        """Automatically determine package dependencies.
+        Note: IPS does not do a very good job of this
+        """
         super(Dependencies, self).__init__(self, *args, **kwargs)
         self.name = "Automatic dependencies"
 
@@ -106,6 +117,12 @@ class Dependencies(task.Task):
 
 class Transmogrify(task.Task):
     def __init__(self, *args, **kwargs):
+        """Using pkgmogrify's format in %transforms, a user may define
+        specific file modifications on the package manifest
+        
+        For specification see: 
+            man pkgmogrify(1)
+        """
         super(Transmogrify, self).__init__(self, *args, **kwargs)
         self.name = "Transmogrifying file manifest"
 
@@ -141,6 +158,8 @@ class Transmogrify(task.Task):
 
 class Manifest(task.Task):
     def __init__(self, *args, **kwargs):
+        """Automatic generation of initial file manifest.
+        """
         super(Manifest, self).__init__(self, *args, **kwargs)
         self.name = "Generate file manifest"
         
@@ -166,6 +185,9 @@ class Manifest(task.Task):
 
 class Unpack(task.Task):
     def __init__(self, *args, **kwargs):
+        """ Automatically detect supported archives and extract them
+        into the BUILD directory.
+        """
         super(Unpack, self).__init__(self, *args, **kwargs)
         self.name = "Unpack source"
 
@@ -209,12 +231,12 @@ class Unpack(task.Task):
 
 class Buildroot(task.Task):
     def __init__(self, *args, **kwargs):
+        """Destroy/Create BUILDROOT per execution to keep the environment stable
+        """        
         super(Buildroot, self).__init__(self, *args, **kwargs)
         self.name = "Create build root"
         
     def task(self):
-        """Destroy/Create BUILDROOT per execution to keep the environment stable
-        """
         path = self.cls.env_pkg['BUILDROOT']
         if os.path.exists(path):
             shutil.rmtree(path)
@@ -224,6 +246,9 @@ class Buildroot(task.Task):
 
 class Metadata(task.Task):
     def __init__(self, *args, **kwargs):
+        """Generates FMRI data for the package based on values found in the
+        user-defined SPEC file.
+        """
         super(Metadata, self).__init__(self, *args, **kwargs)
         self.name = "Generate meta data"
         
@@ -269,6 +294,11 @@ class Metadata(task.Task):
 
 class Script(task.Task):
     def __init__(self, script, *args, **kwargs):
+        """Create a bash script per script directive block in the user-defined
+        SPEC file.  Each script *should* have its own environment, just like
+        a normal script, however bugs may still exist in the variable expansion
+        system.
+        """
         super(Script, self).__init__(self, *args, **kwargs)
         self.script = script
         
@@ -301,6 +331,11 @@ class Script(task.Task):
 
 class Package(task.Task):
     def __init__(self, *args, **kwargs):
+        """Due to the bizarre requirements of IPS, this class creates a
+        directory containing the final package manifest and the complete
+        buildroot.  The ability to create an archive will be added if there
+        is a need.
+        """
         super(Package, self).__init__(self, *args, **kwargs)
         self.name = "Generate package"        
         self.spkg = False
