@@ -19,14 +19,36 @@ class TaskException(Exception):
 class InternalTaskException(Exception):
     pass
 
+class TaskControllerException(Exception):
+    pass
+
 class Controller(object):
     def __init__(self):
+        """Simple FILO execution stack of task objects
+        
+        Example:
+        from ipsutils import tasks
+        
+        #Create a new controller
+        controller = task.Controller()
+        #Add a tasks
+        controller.task(task.Task(name='Some task'))
+        controller.task(task.Task(name='Some other task'))
+        #Execute tasks
+        controller.do_tasks()
+        
+        Output:
+        + Running task: Some task
+        + Running task: Some other task
+        """
         self.stack = []
 
     def task(self, t):
         """
         t: Task object
         """
+        if not isinstance(t, Task):
+            raise TaskControllerException("'{}' is not an instance of Task".format(type(t)))
         self.stack.append(t)
 
     def do_tasks(self, atexit=None):
@@ -53,6 +75,14 @@ class Controller(object):
 
 class Task(object):
     def __init__(self, *args, **kwargs):
+        """Task engine base class.
+        
+        Keyword arguments:
+        name = Description of the task
+        func = Function reference
+        cls = An instance of the calling class (if any)
+        
+        """
         self.name = ''
         if 'name' in kwargs:
             self.name = kwargs['name']
@@ -64,6 +94,8 @@ class Task(object):
             
         if 'cls' in kwargs:
             self.cls = kwargs['cls']
+            if not isinstance(self.cls, object):
+                raise TaskException("'{}' is not an instance of a class".format(type(self.cls)))
         else:
             self.cls = object()
     
@@ -81,6 +113,8 @@ class Task(object):
 
 class Internal(Task):
     def __init__(self, *args, **kwargs):
+        """Implements an internal task denoted by a slightly different output.
+        """
         super(Internal, self).__init__(self, *args, **kwargs)
 
     def run(self):
