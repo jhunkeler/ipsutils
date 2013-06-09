@@ -50,6 +50,7 @@ class Build(env.Environment):
         self.controller.task(tasks.Transmogrify(cls=self))
         self.controller.task(tasks.Dependencies(cls=self))
         self.controller.task(tasks.Resolve_Dependencies(cls=self))
+        self.controller.task(tasks.AlignPermissions(cls=self))
         if self.options.lint:
             self.controller.task(tasks.Lint(cls=self))
         self.controller.task(tasks.Package(cls=self))
