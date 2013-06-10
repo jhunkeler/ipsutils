@@ -81,7 +81,7 @@ class Stage3(task.Task):
     
 class Stage4(task.Task):
     def __init__(self, *args, **kwargs):
-        super(Stage5, self).__init__(self, *args, **kwargs)
+        super(Stage4, self).__init__(self, *args, **kwargs)
         self.name = "Package installation dry-run"
 
     def _dryrun(self):
