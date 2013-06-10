@@ -106,6 +106,7 @@ class Dependencies(task.Task):
         fp = file(self.cls.env_meta['STAGE3'], 'w+')
         proc_pkg = subprocess.Popen(command_pkg, stdout=fp)
         err = proc_pkg.wait()
+        fp.flush()
         fp.close()
         if err <= 1:
             err = 0
@@ -134,6 +135,7 @@ class Transmogrify(task.Task):
         for line in self.cls.script_dict['transforms']:
             fp.writelines(string.join(line))
             fp.writelines('\n')
+        fp.flush()
         fp.close()
 
         fp = file(self.cls.env_meta['STAGE1_PASS2'], 'w+')
@@ -157,6 +159,7 @@ class Manifest(task.Task):
         fp = file(self.cls.env_meta['STAGE1'], 'a')
         proc_pkg = subprocess.Popen(command_pkg, stdout=fp)
         err = proc_pkg.wait()
+        fp.flush()
         fp.close()
         return err
 
@@ -408,6 +411,7 @@ class AlignPermissions(task.Internal):
             else:
                 found = False
             line_number += 1
+        outfile.flush()
 
         infile.close()
         shutil.copyfile(outfile.name, self.filename)
