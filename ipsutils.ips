@@ -1,5 +1,5 @@
 name:           ipsutils
-version:        0.5.0
+version:        0.6.0
 release:        1
 maintainer:     "Joseph Hunkeler <jhunk@stsci.edu>"
 upstream_url:   http://localhost/$name-$version.tar.gz
