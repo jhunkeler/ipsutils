@@ -364,6 +364,7 @@ class AlignPermissions(task.Internal):
         corrections = []
 
         line_number = 1
+        print("Discovering directory entries in manifest...")
         for line in file(self.filename):
             if line.startswith('dir'):
                 line = line.lstrip('dir')
@@ -373,28 +374,39 @@ class AlignPermissions(task.Internal):
                     s = token.split('=')
                     path[s[0]] = s[1]
                 path['line'] = line_number
+                if self.cls.options.verbose:
+                    print("line {}: {}".format(path['line'], line.rstrip('\n')))
                 manifest_paths.append(path)
             line_number += 1
 
-        # Check manifest real paths against the real system paths
-        # Rewrite manifest with the proper system-level permissions to prevent the
-        # IPS from bombing upon installing simple packages with slightly different
-        # permissions.
-        for path in manifest_paths:
-            for k, v in path.items():
-                if 'path' in k:
-                    real = os.path.join('/', v)
-                    try:
-                        si = os.stat(os.path.realpath(real))
-                        owner = pwd.getpwuid(si.st_uid).pw_name
-                        group = grp.getgrgid(si.st_gid).gr_name
-                        mode = si.st_mode & 0777
-                        replacement = 'dir  {}={} owner={} group={} mode={}'.format(k, v, owner, group, oct(mode))
-                        self.corrections.append({path['line']: replacement})
-                    except:
-                        continue
+        # Check manifest paths against the real system paths
+        # Rewrite manifest with the proper system-level permissions to prevent
+        # IPS from bombing when installing simple packages with slightly 
+        # different permissions.
+        print("Cross-referencing system paths...")
+        for ref in manifest_paths:
+            orig = ref['path']
+            real = os.path.join('/', orig)
+            try:
+                si = os.stat(os.path.realpath(real))
+                owner = pwd.getpwuid(si.st_uid).pw_name
+                group = grp.getgrgid(si.st_gid).gr_name
+                mode = si.st_mode & 0777
+                replacement = 'dir group={} mode={} owner={} path={}'.format(group, oct(mode), owner, orig)
+                corrections.append({ref['line']: replacement})
+            except:
+                # Tried to stat a path that does not exist.
+                # If it doesn't exist, we don't care... IPS will not barf
+                # on permissions it doesn't already know about.
+                continue
+            
+        if not corrections:
+            print("No permission changes necessary!")
+            return True
+        
         line_number = 1
         found = False
+        print("Repairing permissions...")
         infile = file(self.filename, 'r')
         outfile = tempfile.NamedTemporaryFile(delete=True)
 
@@ -404,7 +416,7 @@ class AlignPermissions(task.Internal):
                     if line_number == pos:
                         found = True
                         if self.cls.options.verbose:
-                            print("Correcting line WANT:{}, GOT:{}".format(line_number, pos))
+                            print("line {}: {}".format(line_number, key))
                         outfile.write(key + '\n')
             if not found:
                 outfile.writelines(line)
