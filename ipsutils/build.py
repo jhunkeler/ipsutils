@@ -59,5 +59,5 @@ class Build(env.Environment):
     
     def show_summary(self):
         print("Summary of {0:s}".format(self.key_dict['name']))
-        for k, v in sorted(self.key_dict.items()):
+        for k, v in self.key_dict.items():
             print("+ {0:s}: {1:s}".format(k, v))
