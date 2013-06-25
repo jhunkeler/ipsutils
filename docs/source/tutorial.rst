@@ -12,7 +12,7 @@ Creating an IPS package from scratch
 ====================================
 
 In this tutorial we will create an IPS package from the ground up.  
-We will build **ccache** (`<http://ccache.samba.org>`_),
+We will build ``ccache`` (`<http://ccache.samba.org>`_),
 because of its lightweight code footprint, and easy installation
 method.
 
@@ -42,19 +42,63 @@ Download the source
 
 Get the latest version from here_.
 
-OR
+**-OR-**
 
-Download ccache directly with ``wget``::
+Download ``ccache`` directly with ``wget``::
    
    wget -P ~/ipsbuild/SOURCES http://samba.org/ftp/ccache/ccache-3.1.9.tar.bz2
    
 .. note::
 
-   ``wget`` may not installed by default.  To install it on Solaris 11 execute:
+   ``wget`` may not installed by default.  
+   To install it on Solaris 11 execute:
    ``pkg install wget``
 
 
+Creating a SPEC file
+--------------------
 
+Writing an ipsutils SPEC file from scratch feels like a daunting task, 
+much like when working with RPM SPEC files.  There is a utility, ``ipsutils-newspec`` 
+available to help help 
+
+::
+
+   # ipsutils-newspec ~/ipsutils/ccache.ips
+   Generating '/home/user/ipsutils/ccache.ips' spec file
+
+Contents of generated file::
+
+   name: ccache
+   repackage:
+   version:
+   release: 1
+   group:
+   summary: ""
+   license:
+   maintainer: ""
+   upstream_url:
+   source_url:
+   arch:
+   classification: ""
+   description: ""
+   
+   
+   %prep
+   
+   %end
+   
+   %build
+   
+   %end
+   
+   %install
+   
+   %end
+   
+   %transforms
+   
+   %end
 
 
 
