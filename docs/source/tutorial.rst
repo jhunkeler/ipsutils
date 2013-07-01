@@ -105,7 +105,9 @@ Contents of generated file::
 What are these keywords you speak of?
 -------------------------------------
 
-Keywords in an ipsutils SPEC file refer to the data inserted into the *fmri* section of a package manifest.
+.. _FMRI: http://docs.oracle.com/cd/E26502_01/html/E21383/pkgterms.html#glubk
+
+Keywords in an ipsutils SPEC file refer to the data inserted into the FMRI_ section of a package manifest.
 
 name
 ~~~~
@@ -174,12 +176,14 @@ There are only two architectures available:
 
 .. note:
 
-   This keyword is mandatory.  There is no automatic architecture detection in IPS.
+   There is no automatic architecture detection in IPS.
    
 classification
 ~~~~~~~~~~~~~~
 
-For a list of package classifications please refer to `this site <http://docs.oracle.com/cd/E26502_01/html/E21383/gentextid-3283.html#scrolltoc>`_.
+.. _classification: http://docs.oracle.com/cd/E26502_01/html/E21383/gentextid-3283.html#scrolltoc
+
+For a list of package classifications please refer to the IPS package classification_ documentation.
 
 description
 ~~~~~~~~~~~
@@ -187,7 +191,62 @@ description
 A long detailed description of your package.
 
 
-Filling in the blanks
-=====================
+Filling in the FMRI section
+---------------------------
 
-yadda yadda
+The FMRI section of your SPEC file should look something like the following: ::
+
+   name: ccache
+   version: 3.1.9
+   release: 1
+   group: developer
+   summary: "Cache system for GCC"
+   license: GPL
+   maintainer: "John Doe <john@example.com>"
+   upstream_url: http://samba.org/ftp/ccache/$name-$version.tar.bz2
+   source_url: $name-$version.tar.bz2
+   arch: i386
+   classification: "org.opensolaris.category.2008:Development/C"
+   description: "ccache is a compiler cache. It speeds up recompilation \
+   by caching previous compilations and detecting when the same compilation \
+   is being done again. Supported languages are C, C++, Objective-C and \
+   Objective-C++"
+   
+Scripting
+---------
+
+prep
+~~~~
+
+A shell script that will *prepare* your package.  Applying patches, adding
+additional resources, and modifying any files necessary to build your package.
+
+build
+~~~~~
+
+A shell script that will *build* your package.  Here you will execute configuration
+scripts, process makefiles, etc.
+
+install
+~~~~~~~
+
+A shell script that will *install* your package.  Don't forget to 
+always use ``DESTDIR=$BUILDPROTO`` when executing ``make install``.  
+
+.. note::
+   
+   All files that will end up in your package manifest must be installed to ``$BUILDPROTO``.
+
+An example in context ::
+
+   %build
+   ./configure --prefix=/usr
+   make -j2
+   %end
+
+   %install
+   make install DESTDIR=$BUILDPROTO
+   %end
+
+
+
