@@ -78,6 +78,10 @@ Example::
 
 A syntatical reference is available from `oracle's transforms documentation <http://docs.oracle.com/cd/E26502_01/html/E21383/xformrules.html>`_
 
+.. note::
+
+   ``ipsbuild`` will automatically transmogrify directory permissions that do not match overlapping system directories.
+
 
 Available shell expansion variables
 ===================================
