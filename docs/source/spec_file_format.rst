@@ -68,6 +68,7 @@ Set of commands to executed as part of the installation process;
 such as moving data to the build installation directory after being compiled.
 
 Example::
+
    %install
    make install DESTDIR=$BUILDPROTO
    %end
