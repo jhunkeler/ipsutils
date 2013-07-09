@@ -46,9 +46,12 @@ class Environment(config.Config):
                 'PKGS': self.pathgen('PKGS'),
                 'SPKGS': self.pathgen('SPKGS')
                 }
+        
         # complete_name is required to build proper path names.  
-        # The use of "self" in this case may be deprecated in the future.
         self.complete_name = self.key_dict['name'] + '-' + self.key_dict['version']
+        if self.key_dict['badpath']:
+            self.complete_name = self.key_dict['badpath']
+        
         # Dictionary of package-level directories
         self.env_pkg = {
                 'BUILDROOT': os.path.join(self.env['BUILDROOT'], self.complete_name),

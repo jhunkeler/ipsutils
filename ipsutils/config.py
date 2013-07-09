@@ -38,6 +38,7 @@ class Config(object):
         key_dict['arch'] = ''
         key_dict['classification'] = ''
         key_dict['description'] = ''
+        key_dict['badpath'] = ''
 
         #Define valid build script sections in SPEC file
         script_dict = collections.OrderedDict()
@@ -88,7 +89,7 @@ class Config(object):
                     continue
                 if line.startswith('#'):
                     continue
-                parts = shlex.split(line)
+                parts = shlex.split(line, posix=False)
                 if '%end' in parts:
                     found_data = False
                 if section in parts:
@@ -102,6 +103,9 @@ class Config(object):
         self.script_dict = script_dict
         if not self.check_keywords():
             exit(1)
+
+    def _quote(self, s):
+        return "'" + s.replace("'", "'\\''") + "'"
 
     def check_keywords(self):
         """Validate SPEC file's FMRI section
