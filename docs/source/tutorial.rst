@@ -297,26 +297,3 @@ Example (truncated for brevity)::
    + Running task: Generate package
    + Running task: Generate source package
    
-
-Publishing
-==========
-
-.. note::
-   
-   If you have not setup a custom repository, please refer to Oracle's ``pkgrepo`` documentation
-   before continuing.
-   
-Repository discovery
---------------------
-
-TODO
-
-Sending
--------
-
-TODO
-
-Verifying
----------
- 
-TODO
