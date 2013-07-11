@@ -9,7 +9,6 @@ Keywords
 * **version** - Version of package
 * **release** - Release number of package
 * **maintainer** - Name and email address of current package maintainer
-
 * **group** - Name of group the package belongs to
 * **upstream_url** - URL to package in repository
 * **source_url** - URL to original source package
@@ -34,10 +33,10 @@ The ``name`` of the package should match the first part of the source package.
 If source package is named ``ccache-x.y.z.tar.gz`` the ``name`` field should be set to ``ccache``.
 In the case of Python, for example, they use a capital 'p' in the source package filename: ``Python-3.2.1.tar.gz``.
 
-repackas
---------
+repackage
+---------
 
-To create an IPS package under a different name use the ``repackas`` keyword.  In this case, ``Python``
+To create an IPS package under a different name use the ``repackage`` keyword.  In this case, ``Python``
 can be repackaged as ``python3`` and all subsequent modules (numpy, scipy, etc) can be repackaged as
 ``python3-[module]`` to make administration easier.
 
