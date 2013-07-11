@@ -27,13 +27,13 @@ ipsutils provides a script to automatically create your build environment::
 
 Example output::
 
-   Creating directory: /Users/jhunk/ipsbuild
-   Creating directory: /Users/jhunk/ipsbuild/BUILDROOT
-   Creating directory: /Users/jhunk/ipsbuild/BUILD
-   Creating directory: /Users/jhunk/ipsbuild/SPECS
-   Creating directory: /Users/jhunk/ipsbuild/SOURCES
-   Creating directory: /Users/jhunk/ipsbuild/PKGS
-   Creating directory: /Users/jhunk/ipsbuild/SPKGS
+   Creating directory: /home/acct/ipsbuild
+   Creating directory: /home/acct/ipsbuild/BUILDROOT
+   Creating directory: /home/acct/ipsbuild/BUILD
+   Creating directory: /home/acct/ipsbuild/SPECS
+   Creating directory: /home/acct/ipsbuild/SOURCES
+   Creating directory: /home/acct/ipsbuild/PKGS
+   Creating directory: /home/acct/ipsbuild/SPKGS
 
 
 Download the source
@@ -65,8 +65,8 @@ may pick and choose which ones to fill out.
 
 ::
 
-   # ipsutils-newspec ~/ipsutils/ccache.ips
-   Generating '/home/user/ipsutils/ccache.ips' spec file
+   # ipsutils-newspec ~/ipsutils/SPECS/ccache.ips
+   Generating '/home/acct/ipsutils/SPECS/ccache.ips' spec file
 
 Contents of generated file::
 
@@ -75,14 +75,14 @@ Contents of generated file::
    version:
    release: 1
    group:
-   summary: ""
+   summary:
    license:
-   maintainer: ""
+   maintainer:
    upstream_url:
    source_url:
    arch:
-   classification: ""
-   description: ""
+   classification:
+   description:
    
    
    %prep
@@ -101,94 +101,13 @@ Contents of generated file::
    
    %end
 
-
-What are these keywords you speak of?
--------------------------------------
-
-.. _FMRI: http://docs.oracle.com/cd/E26502_01/html/E21383/pkgterms.html#glubk
-
-Keywords in an ipsutils SPEC file refer to the data inserted into the FMRI_ section of a package manifest.
-
-name
-~~~~
-
-The ``name`` of the package should match the first part of the source package.
-If source package is named ``ccache-x.y.z.tar.gz`` the ``name`` field should be set to ``ccache``.
-In the case of Python, for example, they use a capital 'p' in the source package filename: ``Python-3.2.1.tar.gz``.
-
-repackas
-~~~~~~~~
-
-To create an IPS package under a different name use the ``repackas`` keyword.  In this case, ``Python``
-can be repackaged as ``python3`` and all subsequent modules (numpy, scipy, etc) can be repackaged as
-``python3-[module]`` to make administration easier.
-
-version
-~~~~~~~
-
-The version of the package is generally provided in the name of the source archive.
-
-release
-~~~~~~~
-
-The ``release`` keyword allow you to apply patches to the IPS package without the need to change the version number.
-For example, if a maintainer releases a bugfix, but it does not increment the version number, you may apply the
-patch, increment the release number, and push the package to your repository.  Clients will then receive the latest 
-bugfix without incrementing the package version.
-
-group
-~~~~~
-
-``group`` defines a subclass of the IPS package classification system.
-
-summary
-~~~~~~~
-
-``summary`` is a very brief description of the package's functional purpose.
-
-license
-~~~~~~~
-
-The ``license`` describes the package's current license (e.g. ``GPL``, ``BSD``, ``MIT``, etc)
-
-maintainer
-~~~~~~~~~~
-
-The package maintainer's full name and email.  Use the format: ``John Doe <john@example.com>``
-
-upstream_url
-~~~~~~~~~~~~
-
-URL to the original source archive on the internet (or intranet).  Example, ``http://www.example.com/package-1.0.0.tar.gz``
-
-source_url
-~~~~~~~~~~
-
-Although ``upstream_url`` can be in URL format, it is not a requirement.  Example, ``package-1.0.0.tar.gz`` or ``http://www.example.com/package-1.0.0.tar.gz``
-
-arch
-~~~~
-
-There are only two architectures available:
-
-- i386
-- sparc
-
-.. note:
-
-   There is no automatic architecture detection in IPS.
+.. warning::
    
-classification
-~~~~~~~~~~~~~~
-
-.. _classification: http://docs.oracle.com/cd/E26502_01/html/E21383/gentextid-3283.html#scrolltoc
-
-For a list of package classifications please refer to the IPS package classification_ documentation.
-
-description
-~~~~~~~~~~~
-
-A long detailed description of your package.
+   Keywords with no values specified will cause ipsbuild to fail
+   
+.. warning::
+   
+   Keywords must contain a single space after the ':' character
 
 
 Filling in the FMRI section
@@ -200,53 +119,204 @@ The FMRI section of your SPEC file should look something like the following: ::
    version: 3.1.9
    release: 1
    group: developer
-   summary: "Cache system for GCC"
+   summary: Cache system for GCC
    license: GPL
-   maintainer: "John Doe <john@example.com>"
+   maintainer: John Doe <john@example.com>
    upstream_url: http://samba.org/ftp/ccache/$name-$version.tar.bz2
    source_url: $name-$version.tar.bz2
    arch: i386
-   classification: "org.opensolaris.category.2008:Development/C"
-   description: "ccache is a compiler cache. It speeds up recompilation \
-   by caching previous compilations and detecting when the same compilation \
-   is being done again. Supported languages are C, C++, Objective-C and \
-   Objective-C++"
+   classification: org.opensolaris.category.2008:Development/C
+   description: ccache is a compiler cache. It speeds up recompilation by caching previous compilations.
+
+
+Applying scripts
+----------------
+
+``ccache`` does not require any prep work to get running.  
+In practice, if we had a critial patch to apply, or configuration files to
+modify, we would do so in the ``%prep`` section.
+
+
+Build section
+~~~~~~~~~~~~~
+
+::
    
-Scripting
----------
+   %build
+   
+   # Run autotools script
+   ./configure --prefix=/usr
+   
+   # Build the package
+   gmake -j2
+   
+   %end
 
-prep
-~~~~
+Install section
+~~~~~~~~~~~~~~~
 
-A shell script that will *prepare* your package.  Applying patches, adding
-additional resources, and modifying any files necessary to build your package.
+::
+   
+   %install
+   
+   gmake install DESTDIR=$BUILDPROTO
+   
+   %end
+   
+.. warning::
+   
+   Files copied to $BUILDPROTO will be incorporated into your package manifest
 
-build
-~~~~~
+   
+Applying transforms
+-------------------
 
-A shell script that will *build* your package.  Here you will execute configuration
-scripts, process makefiles, etc.
+IPS packing contains a bizarre technology named *transmogrification* that, in theory,
+is a great idea.  The ability to transform file names, permissions, paths all in
+a single albeit long convoluted string directive.
 
-install
-~~~~~~~
+It is too cumbersome to modify a package manifest by hand every time you realize
+there is something missing.  The ``%transforms`` section is **not** a shell script.
+Any text written to this section (except ``#`` comments) will be written directly 
+to the package manifest.
 
-A shell script that will *install* your package.  Don't forget to 
-always use ``DESTDIR=$BUILDPROTO`` when executing ``make install``.  
+Care must be taken to ensure the tranforms syntax is properly written, because like 
+most things in Oracle IPS, there is no error checking at runtime.  Error checking
+appears to be at-the-time, which makes writing IPS packages (successfully) a very
+difficult experience. 
+
+Syntax: [1]_ 
+``<transform {type} {{keyword}={value} ...} -> {action} {modifications...}>``
+
+Example usage ::
+
+   %transforms
+   <transform dir path=opt$ -> edit group bin sys>
+   %end
+   
+This will change the group ownership of ``/opt`` from ``bin`` to ``sys``.
+However, ipsutils does this for you automatically, making these calls no longer necessary.
+
+.. [1] Not confusing at all, right Oracle?
+
+
+Putting it all together
+-----------------------
+
+Your completed SPEC file, if you have been following along, should look similar to
+the following: ::
+
+   name: ccache
+   version: 3.1.9
+   release: 1
+   group: developer
+   summary: Cache system for GCC
+   license: GPL
+   maintainer: John Doe <john@example.com>
+   upstream_url: http://samba.org/ftp/ccache/$name-$version.tar.bz2
+   source_url: $name-$version.tar.bz2
+   arch: i386
+   classification: org.opensolaris.category.2008:Development/C
+   description: ccache is a compiler cache. It speeds up recompilation by caching previous compilations.
+   
+   %build
+   
+   # Run autotools script
+   ./configure --prefix=/usr
+   
+   # Build the package
+   gmake -j2
+   
+   %end
+      
+   %install
+   
+   gmake install DESTDIR=$BUILDPROTO
+   
+   %end
+
+
+Building your package
+---------------------
+
+The simplest and fastest way to get started building your IPS package requires
+nothing fancy.  Execute ipsbuild and watch your build take flight.
+
+::
+
+   ipsbuild ccache.ips
+
+Example (truncated for brevity)::
+
+   Summary of ccache
+   + name: ccache
+   + repackage: 
+   + version: 3.1.9
+   + release: 1
+   + group: developer
+   + summary: Cache system for GCC
+   + license: GPL
+   + maintainer: John Doe <john@example.com>
+   + upstream_url: http://samba.org/ftp/ccache/ccache-3.1.9.tar.bz2
+   + source_url: ccache-3.1.9.tar.bz2
+   + arch: i386
+   + classification: org.opensolaris.category.2008:Development/C
+   + description: ccache is a compiler cache. It speeds up recompilation by caching previous compilations.
+   + Running task: Unpack source
+   Detected archive with extension: .tar.bz2
+   + Running task: Create build root
+   + Running task: Generate meta data
+   + Running task: prep
+   + Running task: build
+   configure: Configuring ccache
+   [...]
+   configure: creating ./config.status
+   config.status: creating Makefile
+   config.status: creating config.h
+   configure: now build ccache by running make
+   gcc -g -O2 -Wall -W -DHAVE_CONFIG_H  -I. -I. -c -o main.o main.c
+   gcc -g -O2 -Wall -W -DHAVE_CONFIG_H  -I. -I. -c -o ccache.o ccache.c
+   gcc -g -O2 -Wall -W -DHAVE_CONFIG_H  -I. -I. -c -o mdfour.o mdfour.c
+   gcc -g -O2 -Wall -W -DHAVE_CONFIG_H  -I. -I. -c -o hash.o hash.c
+   gcc -g -O2 -Wall -W -DHAVE_CONFIG_H  -I. -I. -c -o execute.o execute.c
+   gcc -g -O2 -Wall -W -DHAVE_CONFIG_H  -I. -I. -c -o util.o util.c
+   [...]
+   + Running task: install
+   /usr/bin/ginstall -c -d /home/acct/ipsbuild/BUILDROOT/ccache-3.1.9/root/usr/bin
+   /usr/bin/ginstall -c -m 755 ccache /home/acct/ipsbuild/BUILDROOT/ccache-3.1.9/root/usr/bin
+   /usr/bin/ginstall -c -d /home/acct/ipsbuild/BUILDROOT/ccache-3.1.9/root/usr/share/man/man1
+   /usr/bin/ginstall -c -m 644 ./ccache.1 /home/acct/ipsbuild/BUILDROOT/ccache-3.1.9/root/usr/share/man/man1/
+   + Running task: Generate file manifest
+   + Running task: Transmogrifying file manifest
+   + Running task: Automatic dependencies
+   + Running task: Dependency resolution
+   > Running internal task: Automatic permission alignment
+   Discovering directory entries in manifest...
+   Cross-referencing system paths...
+   Repairing permissions...
+   + Running task: Generate package
+   + Running task: Generate source package
+   
+
+Publishing
+==========
 
 .. note::
    
-   All files that will end up in your package manifest must be installed to ``$BUILDPROTO``.
+   If you have not setup a custom repository, please refer to Oracle's ``pkgrepo`` documentation
+   before continuing.
+   
+Repository discovery
+--------------------
 
-An example in context ::
+TODO
 
-   %build
-   ./configure --prefix=/usr
-   make -j2
-   %end
+Sending
+-------
 
-   %install
-   make install DESTDIR=$BUILDPROTO
-   %end
+TODO
 
-
-
+Verifying
+---------
+ 
+TODO
