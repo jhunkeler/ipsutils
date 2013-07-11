@@ -37,20 +37,19 @@ tree = ['BUILDROOT',
         'SPKGS']
 
 def create_dir(dirent):
+    if os.path.exists(dirent):
+        return False
     print("Creating directory: {0:s}".format(dirent))
     os.mkdir(dirent)
+    return True
 
 def main():
-#    try:
-    create_dir(head)
-#    except:
-#        print("{0:s} already exists, please remove it.".format(head))
+    if not create_dir(head):
+        print("ipsbuild tree already exists!")
+        
+    for d in tree:
+        create_dir(os.path.join(head, d))
 
-    try:
-        for d in tree:
-            create_dir(os.path.join(head, d))
-    except:
-        pass
 
 if __name__ == '__main__':
     main()
