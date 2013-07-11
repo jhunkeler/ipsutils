@@ -28,21 +28,25 @@ if args.spec:
         spec_template.key_dict['name'] = os.path.splitext(os.path.basename(spec))[0]
         spec_template.key_dict['release'] = '1'
 
-        print("Generating '{}' spec file".format(spec))
+        print("Generating '{}' spec file".format(os.path.basename(spec)))
         fp = file(spec, 'w+')
         for key, val in spec_template.key_dict.items():
-            if key is 'description' \
-                or key is 'classification' \
-                or key is 'summary' \
-                or key is 'maintainer':
-                val = '""'
+            # Write non-essential keywords, commented
+            if key is 'repackage' \
+                or key is 'badpath':
+                key = '#' + key
+            # Write initial classification string (user needs to fill it in)
+            if key is 'classification':
+                val = 'org.opensolaris.category.2008:'
+            if key is 'upstream_url':
+                val = 'http://'
             fp.write('{}: {}\n'.format(key, val))
         fp.write('\n')
 
         for key in spec_template.script_dict.keys():
             fp.write('\n')
             fp.write('%{}\n\n'.format(key))
-            fp.write('%end\n')
+            fp.write('%end\n\n')
         fp.flush()
         fp.close()
 else:
