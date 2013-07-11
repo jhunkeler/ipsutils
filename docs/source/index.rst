@@ -9,11 +9,13 @@ Welcome to ipsutils's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   spec_file_format
+   installation
    tutorial
-   code
+   spec_file_format
+   utility_reference
+
 
 Indices and tables
 ==================
