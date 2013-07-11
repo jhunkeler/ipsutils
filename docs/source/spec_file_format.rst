@@ -221,13 +221,13 @@ This is a generic example of an IPS spec file
    name:           ipsutils
    version:        0.6.0
    release:        1
-   maintainer:     "Joseph Hunkeler <jhunk@stsci.edu>"
+   maintainer:     Joseph Hunkeler <jhunk@stsci.edu>
    upstream_url:   http://localhost/$name-$version.tar.gz
    source_url:     http://localhost/$name-$version.tar.gz
-   description:    "Python IPS library"
-   summary:        "A python based IPS library"
+   description:    Python IPS library
+   summary:        A python based IPS library
    group:          developer
-   classification: "org.opensolaris.category.2008:Development/Distribution Tools"
+   classification: org.opensolaris.category.2008:Development/Distribution Tools
    arch:           i386
    license:        GPL
    
