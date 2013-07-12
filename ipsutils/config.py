@@ -57,7 +57,7 @@ class Config(object):
             for line in file(ipsfile).readlines():
                 parts = shlex.split(line)
                 if key + ":" in parts:
-                    key_dict[key] = line[line.find(':')+1:].lstrip(' ').rstrip('\n')
+                    key_dict[key] = line[line.find(':')+1:].lstrip(' ').rstrip('\n').rstrip(' ')
 
         #Drop using the original file in favor of a StringIO buffer
         #Because we need room to breathe without rewriting the file
@@ -77,7 +77,7 @@ class Config(object):
             for line in ipsfile_output:
                 parts = shlex.split(line)
                 if key + ":" in parts:
-                    key_dict[key] = line[line.find(':')+1:].lstrip(' ').rstrip('\n')
+                    key_dict[key] = line[line.find(':')+1:].lstrip(' ').rstrip('\n').rstrip(' ')
         
         #Parse user defined scripts by section and store them in script_dict
         found_data = False
