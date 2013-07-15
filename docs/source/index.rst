@@ -13,9 +13,9 @@ Contents:
 
    installation
    tutorial
+   publishing
    spec_file_format
    utility_reference
-   publishing
 
 
 Indices and tables
