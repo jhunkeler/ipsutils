@@ -32,6 +32,7 @@ Executing ``pkg publisher`` will display a list of available repositories: ::
    myrepo                      origin   online F http://localhost/myrepo:10000
 
 
+In this case you will want to use:
 ``myrepo`` and its *LOCATION* ``http://localhost/myrepo:10000``
 
 
