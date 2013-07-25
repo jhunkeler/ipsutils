@@ -171,6 +171,12 @@ class Unpack(task.Task):
         """
         super(Unpack, self).__init__(self, *args, **kwargs)
         self.name = "Unpack source"
+        self.extract_with = 'Built-in'
+        
+        #Order is IMPORTANT, extended extensions must precede single notation.
+        self.extensions = OrderedDict()
+        self.extensions['tar'] = ['.tar.bz2', '.tar.gz', '.tar']
+        self.extensions['zip'] = ['.zip']
 
     def untar(self, src, dest):
         if not tarfile.is_tarfile(src):
@@ -180,6 +186,20 @@ class Unpack(task.Task):
         archive.close()
         return True
 
+    def untar_fast(self, src, dest):
+        """Sick of waiting?  Me too.
+        """
+        tell_tar = 'xf'
+        if vars(self.cls.options)['verbose']:
+            tell_tar += 'v'
+        command = [ self.cls.tool['tar'], tell_tar, src, '-C', dest ]
+        proc = subprocess.Popen(command, stdout=sys.stdout)
+        err = proc.wait()
+        
+        if err != 0:
+            return False
+        return True
+
     def unzip(self, src, dest):
         if not zipfile.is_zipfile(src):
             return False
@@ -187,26 +207,53 @@ class Unpack(task.Task):
         archive.extractall(dest)
         return True
 
+    def unzip_fast(self, src, dest):
+        """Sick of waiting?  Me too.
+        """
+        command = [ self.cls.tool['unzip'], '-d', dest, src ]
+        proc = subprocess.Popen(command)
+        err = proc.wait()
+        if err != 0:
+            return False
+        return True
+
+    def detect(self, filename):
+        delim = '.'
+        ext_split = filename[filename.find(delim):]
+        for fmt, exts in self.extensions.items():
+            for ext in exts:
+                if ext in ext_split:
+                    return fmt, ext
+        return '', ext_split
+
     def task(self):
         path = os.path.abspath(self.cls.env_pkg['SOURCES'])
         if not os.path.exists(path):
             print("{0:s}: does not exist".format(path))
             return False
+        
         if os.path.exists(self.cls.env_pkg['BUILD']):
             shutil.rmtree(self.cls.env_pkg['BUILD'])
 
-        ext = {
-               '.tar': self.untar(path, self.cls.env['BUILD']),
-               '.tar.gz': self.untar(path, self.cls.env['BUILD']),
-               '.tar.bz2': self.untar(path, self.cls.env['BUILD']),
-               '.zip': self.unzip(path, self.cls.env['BUILD'])
-        }
-
+        if vars(self.cls.options)['fast']:
+            # Force system-level source extraction
+            self.untar = self.untar_fast
+            self.unzip = self.unzip_fast
+            self.extract_with = 'OS Provided'
+        
         err = None
-        for k, _ in ext.items():
-            if k in path:
-                print("Detected archive with extension: {}".format(k, _))
-                break
+        fmt, ext = self.detect(path)
+        print("Detected {} archive with extension {}".format(fmt, ext))
+        print("Extraction method: {}".format(self.extract_with))
+        
+        if fmt not in self.extensions.keys():
+            print("Unsupported archive: {}".format(ext))
+            return 1
+        if fmt == 'tar':
+            self.untar(path, self.cls.env['BUILD'])
+        elif fmt == 'zip':
+            self.unzip(path, self.cls.env['BUILD'])
+        
         return err
 
 

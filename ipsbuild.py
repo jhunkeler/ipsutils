@@ -23,6 +23,7 @@ parser = argparse.ArgumentParser(description='Build Solaris 11 packages from .ip
 parser.add_argument('--version', action="store_true", help='Show version information')
 parser.add_argument('--verbose', action="store_true", help='Increased verbosity')
 parser.add_argument('--lint', action="store_true", help='Enables deep packaging checks')
+parser.add_argument('--fast', action="store_true", help='Use system tools to extract source archive')
 parser.add_argument('spec', nargs='*', help='An ipsutils spec file')
 args = parser.parse_args()
 
