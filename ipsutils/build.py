@@ -51,7 +51,8 @@ class Build(env.Environment):
         self.controller.task(tasks.Dependencies(cls=self))
         if not self.options.nodepsolve:
             self.controller.task(tasks.Resolve_Dependencies(cls=self))
-        self.controller.task(tasks.AlignPermissions(cls=self))
+        if not self.options.noalign:
+            self.controller.task(tasks.AlignPermissions(cls=self))
         if self.options.lint:
             self.controller.task(tasks.Lint(cls=self))
         self.controller.task(tasks.Package(cls=self))
