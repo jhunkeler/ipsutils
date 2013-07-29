@@ -49,7 +49,8 @@ class Build(env.Environment):
         self.controller.task(tasks.Manifest(cls=self))
         self.controller.task(tasks.Transmogrify(cls=self))
         self.controller.task(tasks.Dependencies(cls=self))
-        self.controller.task(tasks.Resolve_Dependencies(cls=self))
+        if not self.options.nodepsolve:
+            self.controller.task(tasks.Resolve_Dependencies(cls=self))
         self.controller.task(tasks.AlignPermissions(cls=self))
         if self.options.lint:
             self.controller.task(tasks.Lint(cls=self))
@@ -60,4 +61,6 @@ class Build(env.Environment):
     def show_summary(self):
         print("Summary of {0:s}".format(self.key_dict['name']))
         for k, v in self.key_dict.items():
+            if not v:
+                continue
             print("+ {0:s}: {1:s}".format(k, v))

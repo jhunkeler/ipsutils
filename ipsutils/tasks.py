@@ -108,6 +108,11 @@ class Dependencies(task.Task):
         err = proc_pkg.wait()
         fp.flush()
         fp.close()
+        
+        if vars(self.cls.options)['nodepsolve']:
+            shutil.copy2(self.cls.env_meta['STAGE3'], \
+                         self.cls.env_meta['STAGE4'])
+            
         if err <= 1:
             err = 0
         return err
