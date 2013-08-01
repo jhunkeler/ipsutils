@@ -42,6 +42,7 @@ class Config(object):
 
         #Define valid build script sections in SPEC file
         script_dict = collections.OrderedDict()
+        script_dict['globals'] = []
         script_dict['prep'] =  []
         script_dict['build'] = []
         script_dict['install'] =  []
@@ -81,7 +82,7 @@ class Config(object):
         
         #Parse user defined scripts by section and store them in script_dict
         found_data = False
-        code_section = ['%build', '%prep', '%install', '%transforms']
+        code_section = ['%globals', '%prep', '%build', '%install', '%transforms']
 
         for section in code_section:
             for line in ipsfile_output:
