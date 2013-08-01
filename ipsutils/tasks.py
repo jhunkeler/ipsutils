@@ -180,7 +180,7 @@ class Unpack(task.Task):
         
         #Order is IMPORTANT, extended extensions must precede single notation.
         self.extensions = OrderedDict()
-        self.extensions['tar'] = ['.tar.bz2', '.tar.gz', '.tar']
+        self.extensions['tar'] = ['.tar.bz2', '.tar.gz', '.tbz2', '.tgz', '.tar']
         self.extensions['zip'] = ['.zip']
 
     def untar(self, src, dest):
