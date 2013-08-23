@@ -405,7 +405,8 @@ class Package(task.Task):
         else:
             shutil.copytree(self.cls.env_pkg['BUILDPROTO'], \
                             os.path.join(self.destination, \
-                            os.path.basename(self.cls.env_pkg['BUILDPROTO'])))
+                            os.path.basename(self.cls.env_pkg['BUILDPROTO'])), \
+							symlinks=True)
             shutil.copy2(self.cls.env_meta['STAGE4'], self.destination)
 
         return 0
