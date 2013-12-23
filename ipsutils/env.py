@@ -48,15 +48,22 @@ class Environment(config.Config):
                 }
         
         # complete_name is required to build proper path names.  
-        self.complete_name = self.key_dict['name'] + '-' + self.key_dict['version']
+        self.complete_name = self.key_dict['name'] + '-' + \
+                                self.key_dict['version']
+                        
+        build_name = self.complete_name
         if self.key_dict['badpath']:
-            self.complete_name = self.key_dict['badpath']
-        
+            build_name = self.key_dict['badpath']
+
+        if self.key_dict['repackage']:
+            self.complete_name = self.key_dict['repackage'] + '-' + \
+                self.key_dict['version'] + '-' + self.key_dict['release']
+                
         # Dictionary of package-level directories
         self.env_pkg = {
                 'BUILDROOT': os.path.join(self.env['BUILDROOT'], self.complete_name),
                 'BUILDPROTO': os.path.join(self.env['BUILDROOT'], self.complete_name, 'root'),
-                'BUILD': os.path.join(self.env['BUILD'], self.complete_name),
+                'BUILD': os.path.join(self.env['BUILD'], build_name),
                 'SOURCES': os.path.join(self.env['SOURCES'], os.path.basename(self.key_dict['source_url'])),
                 'PKGS': os.path.join(self.env['PKGS'], self.complete_name),
                 'SPKGS': os.path.join(self.env['SPKGS'], self.complete_name)

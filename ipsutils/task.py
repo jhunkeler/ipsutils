@@ -103,7 +103,7 @@ class Task(object):
         if not self.name:
             raise TaskException("Unnamed task in: {}".format(self.__class__.__name__))
         
-        print("+ Running task: {0:s}".format(self.name))
+        print("> Running task: {0:s}".format(self.name))
         status = self.task()
         return status
         

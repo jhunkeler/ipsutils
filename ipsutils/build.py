@@ -64,4 +64,4 @@ class Build(env.Environment):
         for k, v in self.key_dict.items():
             if not v:
                 continue
-            print("+ {0:s}: {1:s}".format(k, v))
+            print("> {0:s}: {1:s}".format(k, v))

@@ -90,7 +90,8 @@ class Config(object):
                     continue
                 if line.startswith('#'):
                     continue
-                parts = shlex.split(line, posix=False)
+                #parts = shlex.split(line, posix=False)
+                parts = line
                 if '%end' in parts:
                     found_data = False
                 if section in parts:

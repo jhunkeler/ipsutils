@@ -15,6 +15,7 @@
 from . import task
 from . import tpl
 from collections import OrderedDict
+from pipes import quote
 import grp
 import os
 import pwd
@@ -177,12 +178,28 @@ class Unpack(task.Task):
         super(Unpack, self).__init__(self, *args, **kwargs)
         self.name = "Unpack source"
         self.extract_with = 'Built-in'
+        self.rename = ''
         
         #Order is IMPORTANT, extended extensions must precede single notation.
         self.extensions = OrderedDict()
         self.extensions['tar'] = ['.tar.bz2', '.tar.gz', '.tbz2', '.tgz', '.tar']
         self.extensions['zip'] = ['.zip']
 
+    def untar_matchdir(self, name):
+        if not tarfile.is_tarfile(name):
+            return False
+        name_expected = self.cls.complete_name
+        archive = tarfile.open(name)
+        for member in archive.getmembers():
+            dirname = os.path.dirname(member.name).split('/')[0]
+            if not dirname:
+                continue
+            if dirname != name_expected:
+                self.rename = self.cls.complete_name
+                return False
+        return True
+        
+    
     def untar(self, src, dest):
         if not tarfile.is_tarfile(src):
             return False
@@ -194,15 +211,22 @@ class Unpack(task.Task):
     def untar_fast(self, src, dest):
         """Sick of waiting?  Me too.
         """
+        #src = os.path.abspath(self.cls.env_pkg['SOURCES'])
         tell_tar = 'xf'
+        strip = ''
         if vars(self.cls.options)['verbose']:
+            print("DESTINATION: {}".format(dest))
             tell_tar += 'v'
-        command = [ self.cls.tool['tar'], tell_tar, src, '-C', dest ]
+        if self.untar_matchdir(src):
+            strip = '--strip-components=1'
+            
+        command = [ self.cls.tool['tar'], tell_tar, src, '-C', dest, strip]
         proc = subprocess.Popen(command, stdout=sys.stdout)
         err = proc.wait()
         
         if err != 0:
             return False
+        
         return True
 
     def unzip(self, src, dest):
@@ -215,6 +239,7 @@ class Unpack(task.Task):
     def unzip_fast(self, src, dest):
         """Sick of waiting?  Me too.
         """
+        print(dest)
         command = [ self.cls.tool['unzip'], '-d', dest, src ]
         proc = subprocess.Popen(command)
         err = proc.wait()
@@ -231,6 +256,19 @@ class Unpack(task.Task):
                     return fmt, ext
         return '', ext_split
 
+    def detect_topdir(self, path):
+        dirs = []
+        for root, dirnames, filenames in os.walk(path):
+            for dir in dirnames:
+                dirs.append(dir)
+        
+        for directory in dirs:
+            if self.cls.key_dict['name'] in directory:
+                return directory
+        return ""
+            
+            
+
     def task(self):
         path = os.path.abspath(self.cls.env_pkg['SOURCES'])
         if not os.path.exists(path):
@@ -238,8 +276,10 @@ class Unpack(task.Task):
             return False
         
         if os.path.exists(self.cls.env_pkg['BUILD']):
+            if vars(self.cls.options)['verbose']:
+                print("Removing: {}".format(self.cls.env_pkg['BUILD']))
             shutil.rmtree(self.cls.env_pkg['BUILD'])
-
+        
         if vars(self.cls.options)['fast']:
             # Force system-level source extraction
             self.untar = self.untar_fast
@@ -255,10 +295,23 @@ class Unpack(task.Task):
             print("Unsupported archive: {}".format(ext))
             return 1
         if fmt == 'tar':
-            self.untar(path, self.cls.env['BUILD'])
+            if not self.untar_matchdir(path):
+                print("Renamed to: {}".format(self.rename))
+                self.cls.env_pkg['BUILD'] = os.path.join(self.cls.env['BUILD'], self.rename)
+
+            if os.path.exists(self.cls.env_pkg['BUILD']):
+                shutil.rmtree(self.cls.env_pkg['BUILD'])
+            os.mkdir(self.cls.env_pkg['BUILD'])
+            
+            self.untar(path, self.cls.env_pkg['BUILD'])
+            self.cls.env_pkg['BUILD'] = os.path.join(self.cls.env_pkg['BUILD'], self.detect_topdir(self.cls.env_pkg['BUILD']))
+                
         elif fmt == 'zip':
-            self.unzip(path, self.cls.env['BUILD'])
+            self.unzip(path, self.cls.env_pkg['BUILD'])
+            self.cls.env_pkg['BUILD'] = os.path.join(self.cls.env_pkg['BUILD'], self.detect_topdir(self.cls.env_pkg['BUILD']))
+            print("OK WTF: {}".format(self.cls.env_pkg['BUILD']))
         
+        #shutil.move(path, self.cls.complete_name)
         return err
 
 
@@ -272,6 +325,8 @@ class Buildroot(task.Task):
     def task(self):
         path = self.cls.env_pkg['BUILDROOT']
         if os.path.exists(path):
+            if vars(self.cls.options)['verbose']:
+                print("Destroying existing build root: {}".format(path))
             shutil.rmtree(path)
         os.makedirs(path, 0755)
         return True
@@ -336,7 +391,7 @@ class Script(task.Task):
         self.script = script
 
     def task(self):
-        shebang = "#!/bin/bash\n"
+        shebang = "#!/bin/bash -x\n"
         fp_tempfile = tempfile.NamedTemporaryFile('w+', prefix='ipsutils_', suffix='.sh', delete=True)
         os.chdir(self.cls.env_pkg['BUILD'])
         fp_tempfile.write(shebang)
@@ -347,12 +402,9 @@ class Script(task.Task):
                     continue
                 # Variable expansion occurs here.  Unfortunately, env_pkg is NOT available
                 # from within the configuration class
-                t = string.Template(string.join(line))
+                t = string.Template(line)
                 line = t.safe_substitute(self.cls.env_pkg)
                 fp_tempfile.writelines(line)
-                fp_tempfile.writelines('\n')
-                if self.cls.options.verbose:
-                    print(">>> {0:s}".format(line))
                 fp_tempfile.flush()                
 
         for line in self.script:
@@ -360,12 +412,16 @@ class Script(task.Task):
                 continue
             # Variable expansion occurs here.  Unfortunately, env_pkg is NOT available
             # from within the configuration class
-            t = string.Template(string.join(line))
-            line = t.safe_substitute(self.cls.env_pkg)
-            fp_tempfile.writelines(line)
+            
+            # Fix a shell expansion bug:  
+            # The find command relies on "{}\;" for "-exec", but is eaten by the 
+            # template system...
+            line = line.replace("{}\\;", "{} \\;")
+            t = string.Template(line)
+            temp_line = t.safe_substitute(self.cls.env_pkg)
+            fp_tempfile.writelines(temp_line)
             fp_tempfile.writelines('\n')
-            if self.cls.options.verbose:
-                print(">>> {0:s}".format(line))
+            
         fp_tempfile.flush()
         os.chmod(fp_tempfile.name, 0755)
         script = [fp_tempfile.name]
