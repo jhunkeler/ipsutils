@@ -49,7 +49,8 @@ class Environment(config.Config):
         
         # complete_name is required to build proper path names.  
         self.complete_name = self.key_dict['name'] + '-' + \
-                                self.key_dict['version']
+                                self.key_dict['version'] + '-' + \
+                                self.key_dict['release']
                         
         build_name = self.complete_name
         if self.key_dict['badpath']:
@@ -57,7 +58,8 @@ class Environment(config.Config):
 
         if self.key_dict['repackage']:
             self.complete_name = self.key_dict['repackage'] + '-' + \
-                self.key_dict['version'] + '-' + self.key_dict['release']
+                self.key_dict['version'] + '-' + \
+                self.key_dict['release']
                 
         # Dictionary of package-level directories
         self.env_pkg = {
