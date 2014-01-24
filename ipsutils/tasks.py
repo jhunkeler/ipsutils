@@ -139,7 +139,7 @@ class Transmogrify(task.Task):
         # Write %transforms block into transmogrification file
         # Proper syntax required.
         for line in self.cls.script_dict['transforms']:
-            fp.writelines(string.join(line))
+            fp.writelines(line)
             fp.writelines('\n')
         fp.flush()
         fp.close()
